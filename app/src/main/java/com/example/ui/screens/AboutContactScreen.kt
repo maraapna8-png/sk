@@ -95,7 +95,7 @@ fun AboutContactScreen(
                     SktBrandLogo(size = 48, showText = false)
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "SKT Tea Company",
+                        text = "SK Tea Company",
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -142,7 +142,7 @@ fun AboutContactScreen(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "SKT Tea Company is dedicated to supplying the finest, unadulterated tea leaves and granulated CTC blends to tea stalls, hotels, restaurants, and retail grocers.",
+                        text = "SK Tea Company is dedicated to supplying the finest, unadulterated tea leaves and granulated CTC blends to tea stalls, hotels, restaurants, and retail grocers.",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = TeaTextPrimary,
                             lineHeight = 22.sp
@@ -191,7 +191,7 @@ fun AboutContactScreen(
                         onWhatsApp = {
                             launchWhatsApp(
                                 context,
-                                "Hello Muhammad Azam sb, I would like to discuss business with SKT Tea Company.",
+                                "Hello Muhammad Azam sb, I would like to discuss business with SK Tea Company.",
                                 COMPANY_CONTACT.ownerPhone
                             )
                         }
@@ -208,7 +208,7 @@ fun AboutContactScreen(
                         onWhatsApp = {
                             launchWhatsApp(
                                 context,
-                                "Hello Muhammad Zeeshan sb, I would like to inquire about SKT Tea order supply.",
+                                "Hello Muhammad Zeeshan sb, I would like to inquire about SK Tea order supply.",
                                 COMPANY_CONTACT.managerPhone
                             )
                         }
@@ -253,7 +253,7 @@ fun AboutContactScreen(
                         onAction = {
                             launchWhatsApp(
                                 context,
-                                "Hello SKT Tea Company, I am inquiring about tea supply.",
+                                "Hello SK Tea Company, I am inquiring about tea supply.",
                                 COMPANY_CONTACT.whatsappNumber
                             )
                         }
@@ -356,7 +356,7 @@ fun AboutContactScreen(
                     Button(
                         onClick = {
                             val msg = """
-                                *SKT Tea Customer Inquiry*
+                                *SK Tea Customer Inquiry*
                                 Name: ${inquiryName.ifBlank { "Client" }}
                                 Shop: ${inquiryShop.ifBlank { "N/A" }}
                                 Message: ${inquiryMessage.ifBlank { "Requesting wholesale price quote" }}

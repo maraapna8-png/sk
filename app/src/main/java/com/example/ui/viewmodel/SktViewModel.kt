@@ -42,7 +42,8 @@ data class OrderFormState(
 ) {
     val totalKg: Double
         get() {
-            return when (selectedSize) {
+            return when (selectedSize.lowercase(Locale.ROOT)) {
+                "125g" -> (unitCount * 0.125)
                 "250g" -> (unitCount * 0.25)
                 "500g" -> (unitCount * 0.50)
                 "1kg" -> (unitCount * 1.00)
@@ -338,7 +339,7 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
                         _trackedOrder.value = match
                     } else {
                         _trackedOrder.value = null
-                        _trackingMessage.value = "No order found matching '$q'. Please verify the Order ID (e.g. SKT-001042)."
+                        _trackingMessage.value = "No order found matching '$q'. Please verify the Order ID (e.g. SK-001042)."
                     }
                 }
             } finally {

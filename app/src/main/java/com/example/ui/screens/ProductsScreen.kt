@@ -80,7 +80,8 @@ fun ProductsScreen(
     var calcUnits by remember { mutableIntStateOf(10) }
     var calcCustomKgInput by remember { mutableStateOf("5.0") }
 
-    val calculatedTotalKg = when (calcSelectedSize) {
+    val calculatedTotalKg = when (calcSelectedSize.lowercase(Locale.ROOT)) {
+        "125g" -> calcUnits * 0.125
         "250g" -> calcUnits * 0.25
         "500g" -> calcUnits * 0.50
         "1kg" -> calcUnits * 1.00
@@ -98,7 +99,7 @@ fun ProductsScreen(
         item {
             Column {
                 Text(
-                    text = "SKT TEA CATALOG",
+                    text = "SK TEA CATALOG",
                     style = MaterialTheme.typography.labelMedium.copy(
                         color = TeaGold,
                         fontWeight = FontWeight.Bold,
@@ -237,7 +238,7 @@ private fun LiveQuantityCalculatorCard(
             HorizontalDivider(color = Color(0xFFEFE8DE))
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Step 1: Package Size Selector (Geometric Balance 2x2 Grid)
+            // Step 1: Package Size Selector (Geometric Balance Theme)
             Text(
                 text = "1. Choose Package Size:",
                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -247,20 +248,23 @@ private fun LiveQuantityCalculatorCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            val calcSizeOptions = listOf(
-                Triple("250g", "STANDARD", "250g"),
+            val calcSizeOptionsRow1 = listOf(
+                Triple("125g", "MINI", "125g"),
+                Triple("250g", "STANDARD", "250g")
+            )
+            val calcSizeOptionsRow2 = listOf(
                 Triple("500g", "MEDIUM", "500g"),
-                Triple("1kg", "LARGE", "1 KG"),
-                Triple("custom", "CUSTOM", "Other")
+                Triple("1kg", "LARGE", "1 KG")
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Row 1: 125g & 250g
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    calcSizeOptions.take(2).forEach { (id, tag, label) ->
-                        val isSelected = selectedSize == id
+                    calcSizeOptionsRow1.forEach { (id, tag, label) ->
+                        val isSelected = selectedSize.equals(id, ignoreCase = true)
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
@@ -299,12 +303,13 @@ private fun LiveQuantityCalculatorCard(
                     }
                 }
 
+                // Row 2: 500g & 1 KG
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    calcSizeOptions.drop(2).forEach { (id, tag, label) ->
-                        val isSelected = selectedSize == id
+                    calcSizeOptionsRow2.forEach { (id, tag, label) ->
+                        val isSelected = selectedSize.equals(id, ignoreCase = true)
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
@@ -337,6 +342,66 @@ private fun LiveQuantityCalculatorCard(
                                         color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
                                         fontSize = 16.sp
                                     )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Row 3: Custom Option
+                val isCustomSelected = selectedSize.equals("custom", ignoreCase = true) || selectedSize.equals("Custom", ignoreCase = true)
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSizeChange("custom") },
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (isCustomSelected) TeaGreenContainer else Color.White,
+                    border = androidx.compose.foundation.BorderStroke(
+                        if (isCustomSelected) 2.dp else 1.dp,
+                        if (isCustomSelected) TeaGreenPrimary else Color(0xFFE7E5E4)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "CUSTOM",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isCustomSelected) TeaGold else Color(0xFFA8A29E),
+                                    letterSpacing = 1.sp,
+                                    fontSize = 9.sp
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Other / Custom Bulk Volume",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isCustomSelected) TeaGreenPrimary else TeaTextPrimary,
+                                    fontSize = 15.sp
+                                )
+                            )
+                        }
+
+                        if (isCustomSelected) {
+                            Box(
+                                modifier = Modifier
+                                    .size(22.dp)
+                                    .clip(CircleShape)
+                                    .background(TeaGreenPrimary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                         }
@@ -542,7 +607,8 @@ private fun ProductDetailCard(
     var selectedPack by remember { mutableStateOf("500g") }
     var unitCount by remember { mutableIntStateOf(10) }
 
-    val currentTotalKg = when (selectedPack) {
+    val currentTotalKg = when (selectedPack.lowercase(Locale.ROOT)) {
+        "125g" -> unitCount * 0.125
         "250g" -> unitCount * 0.25
         "500g" -> unitCount * 0.50
         "1kg" -> unitCount * 1.00
@@ -646,10 +712,10 @@ private fun ProductDetailCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                listOf("250g" to "250g", "500g" to "500g", "1kg" to "1 KG", "Custom" to "Custom").forEach { (id, label) ->
-                    val isSelected = selectedPack == id
+                listOf("125g" to "125g", "250g" to "250g", "500g" to "500g", "1kg" to "1 KG", "Custom" to "Custom").forEach { (id, label) ->
+                    val isSelected = selectedPack.equals(id, ignoreCase = true)
                     Surface(
                         modifier = Modifier
                             .weight(1f)
@@ -667,7 +733,8 @@ private fun ProductDetailCard(
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                 color = if (isSelected) Color.White else TeaTextPrimary,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                fontSize = 10.sp
                             )
                         )
                     }

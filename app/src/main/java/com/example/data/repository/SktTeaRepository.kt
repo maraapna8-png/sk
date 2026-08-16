@@ -39,7 +39,7 @@ class SktTeaRepository(
         notes: String
     ): OrderEntity {
         val randomDigits = Random.nextInt(100100, 999900)
-        val generatedOrderNumber = "SKT-$randomDigits"
+        val generatedOrderNumber = "SK-$randomDigits"
         val currentTime = System.currentTimeMillis()
 
         val newOrder = OrderEntity(

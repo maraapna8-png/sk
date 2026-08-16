@@ -22,13 +22,13 @@ data class TeaBlend(
     val description: String,
     val flavorProfile: String,
     val recommendedFor: String,
-    val availableSizes: List<String> = listOf("250g", "500g", "1kg", "Custom")
+    val availableSizes: List<String> = listOf("125g", "250g", "500g", "1kg", "Custom")
 )
 
 val SKT_TEA_CATALOG = listOf(
     TeaBlend(
         id = "skt-royal-danedar",
-        name = "SKT Royal Danedar",
+        name = "SK Royal Danedar",
         grade = "Supreme Granular Blend",
         description = "Our flagship high-grown Kenyan & Assam granular tea with robust aroma, rich golden-amber liquor, and unforgettable strong taste.",
         flavorProfile = "Bold, Malty, Aromatic, Deep Amber",
@@ -36,7 +36,7 @@ val SKT_TEA_CATALOG = listOf(
     ),
     TeaBlend(
         id = "skt-gold-leaf",
-        name = "SKT Premium Gold Leaf",
+        name = "SK Premium Gold Leaf",
         grade = "Orthodox Broken Orange Pekoe",
         description = "Carefully handpicked tender whole and broken tea leaves infused with natural sweetness, smooth character, and golden sparkle.",
         flavorProfile = "Velvety, Floral Aroma, Smooth Finish",
@@ -44,7 +44,7 @@ val SKT_TEA_CATALOG = listOf(
     ),
     TeaBlend(
         id = "skt-hotel-karak",
-        name = "SKT Special Karak Hotel Blend",
+        name = "SK Special Karak Hotel Blend",
         grade = "Extra Strong Commercial Blend",
         description = "Crafted specifically for commercial tea stalls, restaurants, and hotels desiring quick brewing, high yield, deep reddish color, and rich thickness with milk.",
         flavorProfile = "Intense, High Extraction, Thick Creamy Karak",
@@ -52,7 +52,7 @@ val SKT_TEA_CATALOG = listOf(
     ),
     TeaBlend(
         id = "skt-classic-family",
-        name = "SKT Classic Family Mixture",
+        name = "SK Classic Family Mixture",
         grade = "Balanced Traditional Blend",
         description = "A harmonious combination of bright leaf and strong dust tea, delivering the beloved traditional everyday taste at wholesale value.",
         flavorProfile = "Comforting, Balanced, Fragrant",
@@ -69,6 +69,7 @@ data class PackOption(
 )
 
 val PACK_OPTIONS = listOf(
+    PackOption("125g", "125 Grams", 125, 0.125, "Mini Trial Pouch - 1/8 KG"),
     PackOption("250g", "250 Grams", 250, 0.25, "Quarter KG Pouch - Retail Friendly"),
     PackOption("500g", "500 Grams", 500, 0.50, "Half KG Pouch - Most Popular"),
     PackOption("1kg", "1 Kilogram", 1000, 1.00, "1 KG Master Pack - Best Value"),
@@ -83,20 +84,20 @@ data class AdminAccount(
 )
 
 val AUTHORIZED_ADMINS = listOf(
-    AdminAccount("Muhammad Azam", "Company Owner", "7860", "0300-8451293"),
-    AdminAccount("Muhammad Zeeshan", "General Manager", "1122", "0321-9876543")
+    AdminAccount("Muhammad Azam", "Company Owner", "7860", "0331-8701808"),
+    AdminAccount("Muhammad Zeeshan", "General Manager", "1122", "0344-9293698")
 )
 
 data class CompanyProfile(
-    val name: String = "SKT Tea Company",
+    val name: String = "SK Tea Company",
     val tagline: String = "Quality Tea, Trusted Service.",
     val owner: String = "Muhammad Azam",
-    val ownerPhone: String = "0300-8451293",
+    val ownerPhone: String = "0331-8701808",
     val manager: String = "Muhammad Zeeshan",
-    val managerPhone: String = "0321-9876543",
-    val whatsappNumber: String = "+92 300 8451293",
-    val email: String = "orders@skt-tea.com",
-    val address: String = "SKT Tea Processing & Wholesale Terminal, G.T. Road Industrial Estate, Punjab",
+    val managerPhone: String = "0344-9293698",
+    val whatsappNumber: String = "+92 331 8701808",
+    val email: String = "orders@sk-tea.com",
+    val address: String = "SK Tea Processing & Wholesale Terminal, G.T. Road Industrial Estate, Punjab",
     val city: String = "Lahore, Pakistan",
     val hours: String = "Monday - Saturday: 8:00 AM - 9:00 PM (Orders Open 24/7)"
 )

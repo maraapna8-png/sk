@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "SKT Tea"
+rootProject.name = "SK Tea"
 
 include(":app")

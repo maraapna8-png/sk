@@ -57,13 +57,13 @@ abstract class AppDatabase : RoomDatabase() {
                 val oneHour = 3600 * 1000L
                 val oneDay = 24 * 3600 * 1000L
 
-                // Initial realistic tea shop orders for SKT Tea Company
+                // Initial realistic tea shop orders for SK Tea Company
                 val sampleCustomers = listOf(
                     CustomerEntity(
                         id = 1,
                         name = "Haji Abdul Rehman",
                         shopName = "Bismillah Tea Stall & General Store",
-                        mobileNumber = "0300-8451293",
+                        mobileNumber = "0301-4567890",
                         address = "Shop #12, G.T. Road Market, Near Clock Tower",
                         city = "Gujranwala",
                         totalOrders = 3,
@@ -75,7 +75,7 @@ abstract class AppDatabase : RoomDatabase() {
                         id = 2,
                         name = "Chaudhry Tariq Mehmood",
                         shopName = "Al-Madina Tea Mart",
-                        mobileNumber = "0321-9876543",
+                        mobileNumber = "0322-7654321",
                         address = "Shop #4, Main Anarkali Wholesale Market",
                         city = "Lahore",
                         totalOrders = 2,
@@ -114,13 +114,13 @@ abstract class AppDatabase : RoomDatabase() {
                 val sampleOrders = listOf(
                     OrderEntity(
                         id = 1,
-                        orderNumber = "SKT-001042",
+                        orderNumber = "SK-001042",
                         customerName = "Haji Abdul Rehman",
                         shopName = "Bismillah Tea Stall & General Store",
-                        mobileNumber = "0300-8451293",
+                        mobileNumber = "0301-4567890",
                         address = "Shop #12, G.T. Road Market, Near Clock Tower",
                         city = "Gujranwala",
-                        teaBlend = "SKT Royal Danedar Blend",
+                        teaBlend = "SK Royal Danedar Blend",
                         teaSize = "500g",
                         unitCount = 20,
                         totalKg = 10.0,
@@ -131,13 +131,13 @@ abstract class AppDatabase : RoomDatabase() {
                     ),
                     OrderEntity(
                         id = 2,
-                        orderNumber = "SKT-001041",
+                        orderNumber = "SK-001041",
                         customerName = "Chaudhry Tariq Mehmood",
                         shopName = "Al-Madina Tea Mart",
-                        mobileNumber = "0321-9876543",
+                        mobileNumber = "0322-7654321",
                         address = "Shop #4, Main Anarkali Wholesale Market",
                         city = "Lahore",
-                        teaBlend = "SKT Premium Gold Leaf",
+                        teaBlend = "SK Premium Gold Leaf",
                         teaSize = "1kg",
                         unitCount = 15,
                         totalKg = 15.0,
@@ -148,13 +148,13 @@ abstract class AppDatabase : RoomDatabase() {
                     ),
                     OrderEntity(
                         id = 3,
-                        orderNumber = "SKT-001040",
+                        orderNumber = "SK-001040",
                         customerName = "Malik Usman Ali",
                         shopName = "Shandar Chai Khana",
                         mobileNumber = "0333-5551234",
                         address = "Commercial Area, Block B, Satellite Town",
                         city = "Rawalpindi",
-                        teaBlend = "SKT Classic Strong Chai Mixture",
+                        teaBlend = "SK Classic Strong Chai Mixture",
                         teaSize = "500g",
                         unitCount = 30,
                         totalKg = 15.0,
@@ -165,13 +165,13 @@ abstract class AppDatabase : RoomDatabase() {
                     ),
                     OrderEntity(
                         id = 4,
-                        orderNumber = "SKT-001039",
+                        orderNumber = "SK-001039",
                         customerName = "Sheikh Nadeem",
                         shopName = "Khyber Hotel & Restaurant",
                         mobileNumber = "0345-7778899",
                         address = "Opposite General Bus Stand, Sargodha Road",
                         city = "Faisalabad",
-                        teaBlend = "SKT Special Hotel Karak Blend",
+                        teaBlend = "SK Special Hotel Karak Blend",
                         teaSize = "1kg",
                         unitCount = 25,
                         totalKg = 25.0,

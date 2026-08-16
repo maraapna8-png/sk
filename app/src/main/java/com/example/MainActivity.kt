@@ -113,7 +113,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
-                                text = "SKT TEA",
+                                text = "SK TEA",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
@@ -137,7 +137,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                     ) {
                         Icon(
                             imageVector = Icons.Default.Phone,
-                            contentDescription = "Call SKT",
+                            contentDescription = "Call SK Tea",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
@@ -148,13 +148,13 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                         onClick = {
                             launchWhatsApp(
                                 context,
-                                "Hello SKT Tea Company, I would like to inquire about wholesale tea pricing."
+                                "Hello SK Tea Company, I would like to inquire about wholesale tea pricing."
                             )
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Chat,
-                            contentDescription = "WhatsApp SKT",
+                            contentDescription = "WhatsApp SK",
                             tint = TeaGold,
                             modifier = Modifier.size(20.dp)
                         )
@@ -192,7 +192,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                     onClick = {
                         launchWhatsApp(
                             context = context,
-                            message = "Hello SKT Tea Company, I would like to place an order or ask a question."
+                            message = "Hello SK Tea Company, I would like to place an order or ask a question."
                         )
                     },
                     containerColor = Color(0xFF25D366),

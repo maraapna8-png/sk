@@ -126,7 +126,7 @@ fun OrderHistoryScreen(
                 onValueChange = { viewModel.updateHistoryMobileFilter(it) },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Filter by Mobile Number, Shop or Order ID") },
-                placeholder = { Text("e.g. 0300-8451293 or Bismillah") },
+                placeholder = { Text("e.g. 0331-8701808 or Bismillah") },
                 singleLine = true,
                 leadingIcon = {
                     Icon(
@@ -214,7 +214,7 @@ fun OrderHistoryScreen(
                     },
                     onShareWhatsApp = {
                         val msg = """
-                            *SKT Tea Order Receipt*
+                            *SK Tea Order Receipt*
                             Order ID: ${order.orderNumber}
                             Shop Name: ${order.shopName}
                             Customer: ${order.customerName}

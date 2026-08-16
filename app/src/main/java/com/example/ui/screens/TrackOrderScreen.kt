@@ -117,7 +117,7 @@ fun TrackOrderScreen(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Enter your Order ID (e.g. SKT-001042) to check real-time packing, preparation, and route dispatch status.",
+                    text = "Enter your Order ID (e.g. SK-001042) to check real-time packing, preparation, and route dispatch status.",
                     style = MaterialTheme.typography.bodyMedium.copy(color = TeaTextSecondary)
                 )
             }
@@ -140,7 +140,7 @@ fun TrackOrderScreen(
                             .fillMaxWidth()
                             .testTag("track_order_input"),
                         label = { Text("Order ID or Mobile Number") },
-                        placeholder = { Text("e.g. SKT-001042 or 0300-8451293") },
+                        placeholder = { Text("e.g. SK-001042 or 0331-8701808") },
                         singleLine = true,
                         leadingIcon = {
                             Icon(
@@ -364,7 +364,7 @@ fun TrackOrderScreen(
                             Button(
                                 onClick = {
                                     val msg = """
-                                        *SKT Order Status Inquiry*
+                                        *SK Order Status Inquiry*
                                         Order ID: ${order.orderNumber}
                                         Customer: ${order.customerName}
                                         Shop: ${order.shopName}
@@ -385,7 +385,7 @@ fun TrackOrderScreen(
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("WhatsApp SKT", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("WhatsApp SK", color = Color.White, fontWeight = FontWeight.Bold)
                             }
 
                             OutlinedButton(

@@ -97,7 +97,7 @@ fun formatDateOnly(timestamp: Long): String {
 }
 
 // Utility: Open WhatsApp or Share
-fun launchWhatsApp(context: Context, message: String, phoneNumber: String = "+923219876543") {
+fun launchWhatsApp(context: Context, message: String, phoneNumber: String = "+923318701808") {
     try {
         val cleanNumber = phoneNumber.replace("+", "").replace("-", "").replace(" ", "")
         val encodedMessage = URLEncoder.encode(message, "UTF-8")
@@ -111,7 +111,7 @@ fun launchWhatsApp(context: Context, message: String, phoneNumber: String = "+92
             putExtra(Intent.EXTRA_TEXT, message)
             type = "text/plain"
         }
-        context.startActivity(Intent.createChooser(sendIntent, "Share SKT Tea Order"))
+        context.startActivity(Intent.createChooser(sendIntent, "Share SK Tea Order"))
     }
 }
 
@@ -124,7 +124,7 @@ fun makePhoneCall(context: Context, phoneNumber: String) {
     }
 }
 
-// SKT Logo Brand Badge
+// SK Logo Brand Badge
 @Composable
 fun SktBrandLogo(
     modifier: Modifier = Modifier,
@@ -145,7 +145,7 @@ fun SktBrandLogo(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_skt_logo),
-                contentDescription = "SKT Tea Logo",
+                contentDescription = "SK Tea Logo",
                 modifier = Modifier.size((size * 0.9).dp),
                 contentScale = ContentScale.Crop
             )
@@ -156,7 +156,7 @@ fun SktBrandLogo(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "SKT",
+                        text = "SK",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = TeaGold,
@@ -310,7 +310,7 @@ fun OrderTimelineStepper(
 ) {
     val steps = listOf(
         "New" to "Order Placed",
-        "Confirmed" to "Verified by SKT",
+        "Confirmed" to "Verified by SK Tea",
         "Processing" to "Packed & Sealed",
         "Out for Delivery" to "Dispatched to Shop",
         "Delivered" to "Successfully Received"
@@ -354,7 +354,7 @@ fun OrderTimelineStepper(
                         )
                     )
                     Text(
-                        text = "This order has been cancelled. For inquiries or reordering, please contact SKT Tea management.",
+                        text = "This order has been cancelled. For inquiries or reordering, please contact SK Tea management.",
                         style = MaterialTheme.typography.bodySmall.copy(color = TeaTextSecondary)
                     )
                 }

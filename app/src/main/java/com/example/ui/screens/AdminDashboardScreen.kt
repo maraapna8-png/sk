@@ -213,7 +213,7 @@ fun AdminDashboardScreen(
                                 )
                             )
                             Text(
-                                text = "${loggedInAdmin?.role ?: "Owner"} • SKT Admin Portal",
+                                text = "${loggedInAdmin?.role ?: "Owner"} • SK Admin Portal",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     color = TeaGold,
                                     fontWeight = FontWeight.SemiBold
@@ -534,7 +534,7 @@ private fun AdminLoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "SKT Admin Portal",
+                text = "SK Admin Portal",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = TeaGreenPrimary
@@ -923,7 +923,7 @@ private fun AdminOrderDetailDialog(
 
                         Button(
                             onClick = {
-                                val msg = "Hello ${order.customerName}, regarding your SKT Tea order ${order.orderNumber} (${order.totalKg} KG):"
+                                val msg = "Hello ${order.customerName}, regarding your SK Tea order ${order.orderNumber} (${order.totalKg} KG):"
                                 launchWhatsApp(context, msg, order.mobileNumber)
                             },
                             modifier = Modifier.weight(1f),
@@ -1077,7 +1077,7 @@ private fun AdminCustomerDetailDialog(
 
                         Button(
                             onClick = {
-                                val msg = "Hello ${customer.name} (${customer.shopName}), this is SKT Tea Company management."
+                                val msg = "Hello ${customer.name} (${customer.shopName}), this is SK Tea Company management."
                                 launchWhatsApp(context, msg, customer.mobileNumber)
                             },
                             modifier = Modifier.weight(1f),

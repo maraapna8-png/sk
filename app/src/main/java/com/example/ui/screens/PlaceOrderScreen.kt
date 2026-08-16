@@ -111,7 +111,7 @@ fun PlaceOrderScreen(
             },
             onWhatsAppSupport = {
                 val whatsappMsg = """
-                    *SKT Tea Order*
+                    *SK Tea Order*
                     Order ID: ${lastOrder!!.orderNumber}
                     Customer Name: ${lastOrder!!.customerName}
                     Shop Name: ${lastOrder!!.shopName}
@@ -474,20 +474,22 @@ private fun TeaSelectionCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            val sizeOptions = listOf(
-                Triple("250g", "STANDARD", "250g"),
+            val sizeOptionsRow1 = listOf(
+                Triple("125g", "MINI", "125g"),
+                Triple("250g", "STANDARD", "250g")
+            )
+            val sizeOptionsRow2 = listOf(
                 Triple("500g", "MEDIUM", "500g"),
-                Triple("1kg", "LARGE", "1 KG"),
-                Triple("Custom", "CUSTOM", "Other")
+                Triple("1kg", "LARGE", "1 KG")
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Row 1
+                // Row 1: 125g & 250g
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    sizeOptions.take(2).forEach { (id, tag, displayLabel) ->
+                    sizeOptionsRow1.forEach { (id, tag, displayLabel) ->
                         val isSelected = formState.selectedSize.equals(id, ignoreCase = true)
                         Surface(
                             modifier = Modifier
@@ -529,12 +531,12 @@ private fun TeaSelectionCard(
                     }
                 }
 
-                // Row 2
+                // Row 2: 500g & 1 KG
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    sizeOptions.drop(2).forEach { (id, tag, displayLabel) ->
+                    sizeOptionsRow2.forEach { (id, tag, displayLabel) ->
                         val isSelected = formState.selectedSize.equals(id, ignoreCase = true)
                         Surface(
                             modifier = Modifier
@@ -570,6 +572,67 @@ private fun TeaSelectionCard(
                                         color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
                                         fontSize = 18.sp
                                     )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Row 3: Custom / Bulk Pack
+                val isCustomSelected = formState.selectedSize.equals("Custom", ignoreCase = true) || formState.selectedSize.equals("custom", ignoreCase = true)
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSizeChange("Custom") },
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (isCustomSelected) TeaGreenContainer else Color.White,
+                    border = androidx.compose.foundation.BorderStroke(
+                        if (isCustomSelected) 2.dp else 1.dp,
+                        if (isCustomSelected) TeaGreenPrimary else TeaBorder
+                    ),
+                    shadowElevation = if (isCustomSelected) 2.dp else 1.dp
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 18.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "CUSTOM",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isCustomSelected) TeaGold else TeaTextTertiary,
+                                    letterSpacing = 1.sp,
+                                    fontSize = 10.sp
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Other / Custom Volume",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isCustomSelected) TeaGreenPrimary else TeaTextPrimary,
+                                    fontSize = 16.sp
+                                )
+                            )
+                        }
+
+                        if (isCustomSelected) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .background(TeaGreenPrimary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
                                 )
                             }
                         }
@@ -844,7 +907,7 @@ fun OrderConfirmationView(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Thank you for choosing SKT Tea Company. Your tea order has been recorded and scheduled for preparation.",
+                text = "Thank you for choosing SK Tea Company. Your tea order has been recorded and scheduled for preparation.",
                 style = MaterialTheme.typography.bodyMedium.copy(color = TeaTextSecondary),
                 textAlign = TextAlign.Center
             )
@@ -983,7 +1046,7 @@ fun OrderConfirmationView(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Contact SKT on WhatsApp",
+                        text = "Contact SK on WhatsApp",
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.White

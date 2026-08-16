@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.components.SktBrandLogo
+import com.example.ui.components.TeaSmoke3DOverlay
 import com.example.ui.components.launchWhatsApp
 import com.example.ui.model.NavTab
 import com.example.ui.model.SKT_TEA_CATALOG
@@ -113,7 +114,7 @@ fun HomeScreen(
             )
         }
 
-        // 5. Why Choose SKT Tea
+        // 5. Why Choose SK Tea
         item {
             WhyChooseSktSection()
         }
@@ -124,7 +125,7 @@ fun HomeScreen(
                 onWhatsAppClick = {
                     launchWhatsApp(
                         context = context,
-                        message = "Hello SKT Tea Company, I would like to inquire about placing a bulk tea order for my shop."
+                        message = "Hello SK Tea Company, I would like to inquire about placing a bulk tea order for my shop."
                     )
                 },
                 onTrackClick = { onNavigate(NavTab.TrackOrder) }
@@ -196,7 +197,7 @@ private fun HeroBannerSection(
 
             // Main Brand Title
             Text(
-                text = "SKT Tea Company",
+                text = "SK Tea Company",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -227,12 +228,12 @@ private fun HeroBannerSection(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // Hero Image Card
+            // Hero Image Card with 3D Volumetric Tea Smoke Effect
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp),
-                shape = RoundedCornerShape(16.dp),
+                    .height(205.dp),
+                shape = RoundedCornerShape(18.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.4f))
             ) {
@@ -243,15 +244,62 @@ private fun HeroBannerSection(
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
+
+                    // Gradient Scrim for Contrast & Bottom Text Readability
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(
                                 Brush.verticalGradient(
-                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.65f))
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.12f),
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.65f)
+                                    )
                                 )
                             )
                     )
+
+                    // 3D Volumetric Tea Steam & Smoke Effect (Overlaid bright on top of the hot tea cup)
+                    TeaSmoke3DOverlay(
+                        modifier = Modifier.fillMaxSize(),
+                        cupCenterXRatio = 0.52f,
+                        cupTopYRatio = 0.58f,
+                        steamIntensity = 1.35f
+                    )
+
+                    // 3D Steam Live Indicator Tag
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(10.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color.Black.copy(alpha = 0.55f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .clip(CircleShape)
+                                    .background(TeaGoldLight)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = "3D Steam • Tap to Swirl",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    color = Color.White,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            )
+                        }
+                    }
+
+                    // Bottom Label
                     Row(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
@@ -430,7 +478,7 @@ private fun HowItWorksSection(onStartOrder: () -> Unit) {
             StepData(
                 number = "1",
                 title = "Select Tea Quantity",
-                desc = "Choose 250g, 500g, 1KG packs or enter custom bulk kilograms.",
+                desc = "Choose 125g, 250g, 500g, 1KG packs or enter custom bulk kilograms.",
                 icon = Icons.Default.Eco
             ),
             StepData(
@@ -448,7 +496,7 @@ private fun HowItWorksSection(onStartOrder: () -> Unit) {
             StepData(
                 number = "4",
                 title = "Submit & Track",
-                desc = "Get unique SKT Order ID, instant WhatsApp dispatch tracking.",
+                desc = "Get unique SK Order ID, instant WhatsApp dispatch tracking.",
                 icon = Icons.Default.TrackChanges
             )
         )
@@ -711,7 +759,7 @@ private fun WhyChooseSktSection() {
             .padding(horizontal = 20.dp, vertical = 28.dp)
     ) {
         Text(
-            text = "WHY SKT TEA",
+            text = "WHY SK TEA",
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.Bold,
                 color = TeaGold,
@@ -865,7 +913,7 @@ private fun ExecutiveLeadershipPreview(onReadMore: () -> Unit) {
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             Text(
-                text = "SKT LEADERSHIP",
+                text = "SK LEADERSHIP",
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = TeaGold,
@@ -971,7 +1019,7 @@ private fun CompanyFooterSection(onNavigate: (NavTab) -> Unit) {
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = "© 2026 SKT Tea Company. All Rights Reserved.",
+            text = "© 2026 SK Tea Company. All Rights Reserved.",
             style = MaterialTheme.typography.labelSmall.copy(
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = 11.sp
