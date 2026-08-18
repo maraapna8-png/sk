@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import com.example.ui.theme.TeaBorder
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,9 +39,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -139,6 +143,7 @@ fun TrackOrderScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("track_order_input"),
+                        textStyle = LocalTextStyle.current.copy(color = Color.Black),
                         label = { Text("Order ID or Mobile Number") },
                         placeholder = { Text("e.g. SK-001042 or 0331-8701808") },
                         singleLine = true,
@@ -151,7 +156,20 @@ fun TrackOrderScreen(
                         },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(onSearch = { viewModel.trackOrder() }),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = TeaGreenPrimary,
+                            unfocusedBorderColor = TeaBorder,
+                            focusedLabelColor = TeaGreenPrimary,
+                            unfocusedLabelColor = Color(0xFF444444),
+                            focusedPlaceholderColor = Color(0xFF777777),
+                            unfocusedPlaceholderColor = Color(0xFF888888),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))

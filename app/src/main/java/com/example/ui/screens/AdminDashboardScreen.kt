@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import com.example.ui.theme.TeaBorder
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,9 +55,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -548,57 +552,6 @@ private fun AdminLoginScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Quick login presets for Owner and Manager
-            Text(
-                text = "Select Authorized Profile:",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = TeaTextPrimary
-                )
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                AUTHORIZED_ADMINS.forEach { admin ->
-                    Surface(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onQuickSelect(admin) },
-                        shape = RoundedCornerShape(10.dp),
-                        color = TeaCreamBg,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.6f))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = admin.name,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = TeaTextPrimary,
-                                    textAlign = TextAlign.Center
-                                )
-                            )
-                            Text(
-                                text = admin.role,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    color = TeaGreenPrimary,
-                                    fontSize = 11.sp
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(18.dp))
-            HorizontalDivider(color = Color(0xFFEFE8DE))
             Spacer(modifier = Modifier.height(18.dp))
 
             // PIN entry
@@ -608,16 +561,25 @@ private fun AdminLoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("admin_pin_input"),
-                label = { Text("Enter 4-Digit Access Code") },
-                placeholder = { Text("e.g. 7860 or 1122") },
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
+                label = { Text("Enter Admin Passcode") },
+                placeholder = { Text("Enter passcode") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 keyboardActions = KeyboardActions(onDone = { onLogin() }),
                 isError = authError != null,
                 supportingText = authError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(10.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = TeaTextSecondary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -656,10 +618,24 @@ private fun AdminOrderSearchAndFilter(
                 value = searchQuery,
                 onValueChange = onSearchChange,
                 modifier = Modifier.fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("Search by Order #, Shop, Name, or Mobile") },
                 singleLine = true,
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
 
             Spacer(modifier = Modifier.height(10.dp))

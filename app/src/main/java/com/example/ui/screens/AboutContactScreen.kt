@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import com.example.ui.theme.TeaBorder
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,9 +33,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -326,8 +330,20 @@ fun AboutContactScreen(
                         value = inquiryName,
                         onValueChange = { inquiryName = it },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(color = Color.Black),
                         label = { Text("Your Name") },
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = TeaGreenPrimary,
+                            unfocusedBorderColor = TeaBorder,
+                            focusedLabelColor = TeaGreenPrimary,
+                            unfocusedLabelColor = Color(0xFF444444),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -336,8 +352,20 @@ fun AboutContactScreen(
                         value = inquiryShop,
                         onValueChange = { inquiryShop = it },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(color = Color.Black),
                         label = { Text("Shop / Business Name") },
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = TeaGreenPrimary,
+                            unfocusedBorderColor = TeaBorder,
+                            focusedLabelColor = TeaGreenPrimary,
+                            unfocusedLabelColor = Color(0xFF444444),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -346,9 +374,21 @@ fun AboutContactScreen(
                         value = inquiryMessage,
                         onValueChange = { inquiryMessage = it },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(color = Color.Black),
                         label = { Text("Your Message / Requirement") },
                         minLines = 3,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = TeaGreenPrimary,
+                            unfocusedBorderColor = TeaBorder,
+                            focusedLabelColor = TeaGreenPrimary,
+                            unfocusedLabelColor = Color(0xFF444444),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))

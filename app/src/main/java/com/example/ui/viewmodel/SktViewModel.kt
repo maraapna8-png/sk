@@ -28,9 +28,13 @@ data class OrderFormState(
     val address: String = "",
     val city: String = "Lahore",
     val selectedBlend: String = SKT_TEA_CATALOG.first().name,
-    val selectedSize: String = "500g",
-    val unitCount: Int = 10,
-    val customKgPerUnit: Double = 0.5,
+    // Per-package quantities
+    val qty125g: Int = 0,
+    val qty250g: Int = 10, // Default 10 packets of 250g
+    val qty500g: Int = 0,
+    val qty1kg: Int = 0,
+    val qtyCustomUnits: Int = 0,
+    val customKgPerUnit: Double = 1.0,
     val notes: String = "",
     val nameError: String? = null,
     val shopError: String? = null,
@@ -40,16 +44,25 @@ data class OrderFormState(
     val isReviewModalOpen: Boolean = false,
     val isSubmitting: Boolean = false
 ) {
+    val totalPackets: Int
+        get() = qty125g + qty250g + qty500g + qty1kg + qtyCustomUnits
+
     val totalKg: Double
+        get() = (qty125g * 0.125) + (qty250g * 0.25) + (qty500g * 0.50) + (qty1kg * 1.0) + (qtyCustomUnits * customKgPerUnit)
+
+    val packageBreakdownString: String
         get() {
-            return when (selectedSize.lowercase(Locale.ROOT)) {
-                "125g" -> (unitCount * 0.125)
-                "250g" -> (unitCount * 0.25)
-                "500g" -> (unitCount * 0.50)
-                "1kg" -> (unitCount * 1.00)
-                else -> (unitCount * customKgPerUnit)
-            }
+            val list = mutableListOf<String>()
+            if (qty125g > 0) list.add("125g x $qty125g")
+            if (qty250g > 0) list.add("250g x $qty250g")
+            if (qty500g > 0) list.add("500g x $qty500g")
+            if (qty1kg > 0) list.add("1kg x $qty1kg")
+            if (qtyCustomUnits > 0) list.add("Custom(${customKgPerUnit}kg) x $qtyCustomUnits")
+            return if (list.isEmpty()) "No packets selected" else list.joinToString(", ")
         }
+
+    val selectedSizeSummary: String
+        get() = packageBreakdownString
 }
 
 data class AdminDashboardStats(
@@ -167,13 +180,18 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
         _orderForm.value = _orderForm.value.copy(selectedBlend = blend)
     }
 
-    fun updateSelectedSize(size: String) {
-        _orderForm.value = _orderForm.value.copy(selectedSize = size)
-    }
-
-    fun updateUnitCount(units: Int) {
-        val safeUnits = units.coerceAtLeast(1)
-        _orderForm.value = _orderForm.value.copy(unitCount = safeUnits, quantityError = null)
+    fun updatePackageQty(sizeId: String, qty: Int) {
+        val safeQty = qty.coerceAtLeast(0)
+        val current = _orderForm.value
+        val updated = when (sizeId.lowercase(Locale.ROOT)) {
+            "125g" -> current.copy(qty125g = safeQty, quantityError = null)
+            "250g" -> current.copy(qty250g = safeQty, quantityError = null)
+            "500g" -> current.copy(qty500g = safeQty, quantityError = null)
+            "1kg" -> current.copy(qty1kg = safeQty, quantityError = null)
+            "custom" -> current.copy(qtyCustomUnits = safeQty, quantityError = null)
+            else -> current
+        }
+        _orderForm.value = updated
     }
 
     fun updateCustomKgPerUnit(kg: Double) {
@@ -216,8 +234,8 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
             addrErr = "Please enter delivery address"
             isValid = false
         }
-        if (form.unitCount <= 0) {
-            qtyErr = "Units must be at least 1"
+        if (form.totalPackets <= 0) {
+            qtyErr = "Please select at least 1 packet for at least one package size"
             isValid = false
         }
 
@@ -252,8 +270,8 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
                     address = form.address,
                     city = form.city,
                     teaBlend = form.selectedBlend,
-                    teaSize = form.selectedSize,
-                    unitCount = form.unitCount,
+                    teaSize = form.packageBreakdownString,
+                    unitCount = form.totalPackets,
                     totalKg = form.totalKg,
                     notes = form.notes
                 )
@@ -281,6 +299,30 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
 
     // Reorder Feature
     fun reorder(pastOrder: OrderEntity) {
+        var q125 = 0
+        var q250 = 0
+        var q500 = 0
+        var q1k = 0
+        var qCustom = 0
+
+        val str = pastOrder.teaSize
+        if (str.contains("x")) {
+            val parts = str.split(",")
+            for (part in parts) {
+                val trimmed = part.trim()
+                if (trimmed.startsWith("125g")) q125 = trimmed.substringAfter("x").trim().toIntOrNull() ?: 0
+                else if (trimmed.startsWith("250g")) q250 = trimmed.substringAfter("x").trim().toIntOrNull() ?: 0
+                else if (trimmed.startsWith("500g")) q500 = trimmed.substringAfter("x").trim().toIntOrNull() ?: 0
+                else if (trimmed.startsWith("1kg")) q1k = trimmed.substringAfter("x").trim().toIntOrNull() ?: 0
+                else if (trimmed.startsWith("Custom")) qCustom = trimmed.substringAfter("x").trim().toIntOrNull() ?: 0
+            }
+        } else {
+            if (str.contains("125g", ignoreCase = true)) q125 = pastOrder.unitCount
+            else if (str.contains("250g", ignoreCase = true)) q250 = pastOrder.unitCount
+            else if (str.contains("1kg", ignoreCase = true)) q1k = pastOrder.unitCount
+            else q500 = pastOrder.unitCount
+        }
+
         _orderForm.value = OrderFormState(
             customerName = pastOrder.customerName,
             shopName = pastOrder.shopName,
@@ -288,8 +330,11 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
             address = pastOrder.address,
             city = pastOrder.city,
             selectedBlend = pastOrder.teaBlend,
-            selectedSize = pastOrder.teaSize,
-            unitCount = pastOrder.unitCount,
+            qty125g = q125,
+            qty250g = q250,
+            qty500g = q500,
+            qty1kg = q1k,
+            qtyCustomUnits = qCustom,
             notes = pastOrder.notes
         )
         _currentTab.value = NavTab.PlaceOrder
@@ -377,14 +422,14 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
     fun loginAdminWithPin(pin: String? = null) {
         val code = (pin ?: _adminPinInput.value).trim()
         val matchedAdmin = AUTHORIZED_ADMINS.find { it.accessCode == code }
-        if (matchedAdmin != null || code == "1234" || code == "7860" || code == "1122") {
+        if (matchedAdmin != null || code == "Admin@1973") {
             val adminUser = matchedAdmin ?: AUTHORIZED_ADMINS.first()
             _loggedInAdmin.value = adminUser
             _isAdminLoggedIn.value = true
             _adminPinInput.value = ""
             _adminAuthError.value = null
         } else {
-            _adminAuthError.value = "Invalid Access Code. Please enter authorized PIN."
+            _adminAuthError.value = "Invalid Passcode. Please enter authorized admin passcode."
         }
     }
 

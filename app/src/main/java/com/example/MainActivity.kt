@@ -236,8 +236,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                         ProductsScreen(
                             onSelectBlendAndOrder = { blend, size, units ->
                                 viewModel.updateSelectedBlend(blend)
-                                viewModel.updateSelectedSize(size)
-                                viewModel.updateUnitCount(units)
+                                viewModel.updatePackageQty(size, units)
                                 viewModel.navigate(NavTab.PlaceOrder)
                             }
                         )

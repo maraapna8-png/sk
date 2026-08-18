@@ -504,9 +504,9 @@ fun OrderReviewDialog(
                             color = Color.LightGray.copy(alpha = 0.5f)
                         )
                         ReviewRow("Tea Selection", teaBlend, isBold = true)
-                        ReviewRow("Package Size", teaSize)
-                        ReviewRow("Units Ordered", "$unitCount packets")
-                        ReviewRow("Total Volume", "${String.format(Locale.US, "%.2f", totalKg)} KG", isHighlight = true)
+                        ReviewRow("Packages Selected", teaSize)
+                        ReviewRow("Total Packets", "$unitCount packets")
+                        ReviewRow("Total Weight", "${String.format(Locale.US, "%.2f", totalKg)} KG", isHighlight = true)
                         if (notes.isNotBlank()) {
                             ReviewRow("Special Notes", notes)
                         }

@@ -84,8 +84,8 @@ data class AdminAccount(
 )
 
 val AUTHORIZED_ADMINS = listOf(
-    AdminAccount("Muhammad Azam", "Company Owner", "7860", "0331-8701808"),
-    AdminAccount("Muhammad Zeeshan", "General Manager", "1122", "0344-9293698")
+    AdminAccount("Muhammad Azam", "Company Owner", "Admin@1973", "0331-8701808"),
+    AdminAccount("Muhammad Zeeshan", "General Manager", "Admin@1973", "0344-9293698")
 )
 
 data class CompanyProfile(

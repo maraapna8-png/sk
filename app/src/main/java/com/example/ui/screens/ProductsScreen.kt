@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import com.example.ui.theme.TeaBorder
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,8 +38,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -506,10 +510,24 @@ private fun LiveQuantityCalculatorCard(
                     value = customKgInput,
                     onValueChange = onCustomKgChange,
                     modifier = Modifier.fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(color = Color.Black),
                     label = { Text("Total Kilograms (KG)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     shape = RoundedCornerShape(8.dp),
-                    trailingIcon = { Text("KG", modifier = Modifier.padding(end = 12.dp), fontWeight = FontWeight.Bold) }
+                    trailingIcon = { Text("KG", modifier = Modifier.padding(end = 12.dp), fontWeight = FontWeight.Bold) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        cursorColor = Color.Black,
+                        focusedBorderColor = TeaGreenPrimary,
+                        unfocusedBorderColor = TeaBorder,
+                        focusedLabelColor = TeaGreenPrimary,
+                        unfocusedLabelColor = Color(0xFF444444),
+                        focusedPlaceholderColor = Color(0xFF777777),
+                        unfocusedPlaceholderColor = Color(0xFF888888),
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    )
                 )
             }
 

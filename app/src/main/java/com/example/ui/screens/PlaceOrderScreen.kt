@@ -43,6 +43,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -144,8 +145,8 @@ fun PlaceOrderScreen(
             address = formState.address,
             city = formState.city,
             teaBlend = formState.selectedBlend,
-            teaSize = formState.selectedSize,
-            unitCount = formState.unitCount,
+            teaSize = formState.packageBreakdownString,
+            unitCount = formState.totalPackets,
             totalKg = formState.totalKg,
             notes = formState.notes,
             isSubmitting = formState.isSubmitting,
@@ -199,13 +200,11 @@ fun PlaceOrderScreen(
             }
         }
 
-        // Section 1: Tea Selection & Pack Size (Geometric 2x2 Grid)
+        // Section 1: Package Sizes & Quantities
         item {
             TeaSelectionCard(
                 formState = formState,
-                onBlendChange = { viewModel.updateSelectedBlend(it) },
-                onSizeChange = { viewModel.updateSelectedSize(it) },
-                onUnitCountChange = { viewModel.updateUnitCount(it) },
+                onQtyChange = { sizeId, qty -> viewModel.updatePackageQty(sizeId, qty) },
                 onCustomKgChange = { viewModel.updateCustomKgPerUnit(it) }
             )
         }
@@ -223,7 +222,7 @@ fun PlaceOrderScreen(
             )
         }
 
-        // Geometric Balance Signature Summary & Review CTA
+        // Order Summary & Review CTA Card
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -239,61 +238,26 @@ fun PlaceOrderScreen(
                     ) {
                         Column {
                             Text(
-                                text = "SELECTED UNITS",
+                                text = "TOTAL PACKETS",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White.copy(alpha = 0.75f),
                                     letterSpacing = 1.2.sp
                                 )
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                IconButton(
-                                    onClick = { if (formState.unitCount > 1) viewModel.updateUnitCount(formState.unitCount - 1) },
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF2D5A47))
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Remove,
-                                        contentDescription = "Decrease",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-
-                                Text(
-                                    text = "${formState.unitCount}",
-                                    style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "${formState.totalPackets} Packets",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
                                 )
-
-                                IconButton(
-                                    onClick = { viewModel.updateUnitCount(formState.unitCount + 1) },
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF2D5A47))
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Increase",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                            }
+                            )
                         }
 
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = "TOTAL KG",
+                                text = "TOTAL WEIGHT",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = TeaGold,
@@ -303,7 +267,7 @@ fun PlaceOrderScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = String.format(Locale.US, "%.1f", formState.totalKg),
+                                    text = String.format(Locale.US, "%.2f", formState.totalKg),
                                     style = MaterialTheme.typography.headlineMedium.copy(
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -320,6 +284,14 @@ fun PlaceOrderScreen(
                                 )
                             }
                         }
+                    }
+
+                    if (formState.quantityError != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = formState.quantityError!!,
+                            style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFFFB4A9))
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(18.dp))
@@ -364,9 +336,7 @@ fun PlaceOrderScreen(
 @Composable
 private fun TeaSelectionCard(
     formState: OrderFormState,
-    onBlendChange: (String) -> Unit,
-    onSizeChange: (String) -> Unit,
-    onUnitCountChange: (Int) -> Unit,
+    onQtyChange: (String, Int) -> Unit,
     onCustomKgChange: (Double) -> Unit
 ) {
     Card(
@@ -389,7 +359,7 @@ private fun TeaSelectionCard(
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Tea Blend & Quantity",
+                    text = "Package Sizes & Quantities",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = TeaGreenPrimary
@@ -397,329 +367,300 @@ private fun TeaSelectionCard(
                 )
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Select packet quantity for each package size required:",
+                style = MaterialTheme.typography.bodySmall.copy(color = TeaTextSecondary)
+            )
+
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Blend Selector Chips
-            Text(
-                text = "Select Blend *",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = TeaTextPrimary
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // 125g
+                PackageQuantityCard(
+                    sizeId = "125g",
+                    tag = "MINI",
+                    label = "125g Pouch",
+                    weightPerUnitKg = 0.125,
+                    currentQty = formState.qty125g,
+                    onQtyChange = { onQtyChange("125g", it) }
                 )
-            )
-            Spacer(modifier = Modifier.height(6.dp))
 
-            SKT_TEA_CATALOG.forEach { blend ->
-                val isSelected = formState.selectedBlend == blend.name
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clickable { onBlendChange(blend.name) },
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (isSelected) TeaGreenContainer else TeaCreamBg,
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        if (isSelected) TeaGreenPrimary else Color(0xFFDCD6CA)
+                // 250g
+                PackageQuantityCard(
+                    sizeId = "250g",
+                    tag = "STANDARD",
+                    label = "250g Pouch",
+                    weightPerUnitKg = 0.250,
+                    currentQty = formState.qty250g,
+                    onQtyChange = { onQtyChange("250g", it) }
+                )
+
+                // 500g
+                PackageQuantityCard(
+                    sizeId = "500g",
+                    tag = "MEDIUM",
+                    label = "500g Pouch",
+                    weightPerUnitKg = 0.500,
+                    currentQty = formState.qty500g,
+                    onQtyChange = { onQtyChange("500g", it) }
+                )
+
+                // 1 KG
+                PackageQuantityCard(
+                    sizeId = "1kg",
+                    tag = "LARGE",
+                    label = "1 KG Master Pack",
+                    weightPerUnitKg = 1.000,
+                    currentQty = formState.qty1kg,
+                    onQtyChange = { onQtyChange("1kg", it) }
+                )
+
+                // Custom Volume
+                PackageQuantityCard(
+                    sizeId = "custom",
+                    tag = "CUSTOM BULK",
+                    label = "Custom Bag (${formState.customKgPerUnit} KG)",
+                    weightPerUnitKg = formState.customKgPerUnit,
+                    currentQty = formState.qtyCustomUnits,
+                    onQtyChange = { onQtyChange("custom", it) }
+                )
+
+                if (formState.qtyCustomUnits > 0) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedTextField(
+                        value = if (formState.customKgPerUnit == 0.0) "" else formState.customKgPerUnit.toString(),
+                        onValueChange = { input ->
+                            val parsed = input.toDoubleOrNull() ?: 0.0
+                            onCustomKgChange(parsed)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+                        label = { Text("Custom Weight per Bag (KG)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = TeaGreenPrimary,
+                            unfocusedBorderColor = TeaBorder,
+                            focusedLabelColor = TeaGreenPrimary,
+                            unfocusedLabelColor = Color(0xFF444444),
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
                     )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(18.dp)
-                                .clip(CircleShape)
-                                .background(if (isSelected) TeaGreenPrimary else Color.Transparent)
-                                .border(1.5.dp, if (isSelected) TeaGreenPrimary else Color.Gray, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.White)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = blend.name,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
-                                    color = if (isSelected) TeaGreenDark else TeaTextPrimary
-                                )
-                            )
-                            Text(
-                                text = blend.grade,
-                                style = MaterialTheme.typography.labelSmall.copy(color = TeaTextSecondary)
-                            )
-                        }
-                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Package Size Options (Geometric Balance 2x2 Grid)
-            Text(
-                text = "Package Size *",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = TeaTextPrimary
-                )
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            val sizeOptionsRow1 = listOf(
-                Triple("125g", "MINI", "125g"),
-                Triple("250g", "STANDARD", "250g")
-            )
-            val sizeOptionsRow2 = listOf(
-                Triple("500g", "MEDIUM", "500g"),
-                Triple("1kg", "LARGE", "1 KG")
-            )
-
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                // Row 1: 125g & 250g
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    sizeOptionsRow1.forEach { (id, tag, displayLabel) ->
-                        val isSelected = formState.selectedSize.equals(id, ignoreCase = true)
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { onSizeChange(id) },
-                            shape = RoundedCornerShape(24.dp),
-                            color = if (isSelected) TeaGreenContainer else Color.White,
-                            border = androidx.compose.foundation.BorderStroke(
-                                if (isSelected) 2.dp else 1.dp,
-                                if (isSelected) TeaGreenPrimary else TeaBorder
-                            ),
-                            shadowElevation = if (isSelected) 2.dp else 1.dp
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = tag,
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) TeaGold else TeaTextTertiary,
-                                        letterSpacing = 1.sp,
-                                        fontSize = 10.sp
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = displayLabel,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
-                                        fontSize = 18.sp
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Row 2: 500g & 1 KG
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    sizeOptionsRow2.forEach { (id, tag, displayLabel) ->
-                        val isSelected = formState.selectedSize.equals(id, ignoreCase = true)
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { onSizeChange(id) },
-                            shape = RoundedCornerShape(24.dp),
-                            color = if (isSelected) TeaGreenContainer else Color.White,
-                            border = androidx.compose.foundation.BorderStroke(
-                                if (isSelected) 2.dp else 1.dp,
-                                if (isSelected) TeaGreenPrimary else TeaBorder
-                            ),
-                            shadowElevation = if (isSelected) 2.dp else 1.dp
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = tag,
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) TeaGold else TeaTextTertiary,
-                                        letterSpacing = 1.sp,
-                                        fontSize = 10.sp
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = displayLabel,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
-                                        fontSize = 18.sp
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Row 3: Custom / Bulk Pack
-                val isCustomSelected = formState.selectedSize.equals("Custom", ignoreCase = true) || formState.selectedSize.equals("custom", ignoreCase = true)
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSizeChange("Custom") },
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (isCustomSelected) TeaGreenContainer else Color.White,
-                    border = androidx.compose.foundation.BorderStroke(
-                        if (isCustomSelected) 2.dp else 1.dp,
-                        if (isCustomSelected) TeaGreenPrimary else TeaBorder
-                    ),
-                    shadowElevation = if (isCustomSelected) 2.dp else 1.dp
-                ) {
+            // Live Order Total Summary Box
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = TeaGreenContainer,
+                border = androidx.compose.foundation.BorderStroke(1.dp, TeaGreenPrimary.copy(alpha = 0.4f))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp, vertical = 14.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
                             Text(
-                                text = "CUSTOM",
+                                text = "ORDER WEIGHT TOTAL",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isCustomSelected) TeaGold else TeaTextTertiary,
-                                    letterSpacing = 1.sp,
-                                    fontSize = 10.sp
+                                    color = TeaGreenDark,
+                                    letterSpacing = 1.sp
                                 )
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Other / Custom Volume",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isCustomSelected) TeaGreenPrimary else TeaTextPrimary,
-                                    fontSize = 16.sp
-                                )
+                                text = "${formState.totalPackets} Packets Selected",
+                                style = MaterialTheme.typography.bodySmall.copy(color = TeaTextSecondary)
                             )
                         }
 
-                        if (isCustomSelected) {
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clip(CircleShape)
-                                    .background(TeaGreenPrimary),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
+                        Text(
+                            text = "${String.format(Locale.US, "%.2f", formState.totalKg)} KG",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = TeaGreenPrimary
+                            )
+                        )
+                    }
+
+                    if (formState.packageBreakdownString != "No packets selected") {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Breakdown: ${formState.packageBreakdownString}",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                color = TeaTextPrimary
+                            )
+                        )
                     }
                 }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(14.dp))
+@Composable
+private fun PackageQuantityCard(
+    sizeId: String,
+    tag: String,
+    label: String,
+    weightPerUnitKg: Double,
+    currentQty: Int,
+    onQtyChange: (Int) -> Unit
+) {
+    val isSelected = currentQty > 0
+    val subtotalKg = currentQty * weightPerUnitKg
 
-            // Unit Multiplier
-            Text(
-                text = "Number of Units / Packets *",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = TeaTextPrimary
-                )
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        color = if (isSelected) TeaGreenContainer else Color.White,
+        border = androidx.compose.foundation.BorderStroke(
+            if (isSelected) 1.5.dp else 1.dp,
+            if (isSelected) TeaGreenPrimary else Color(0xFFE2DCD0)
+        ),
+        shadowElevation = if (isSelected) 2.dp else 1.dp
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Tag & Title
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = tag,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) TeaGreenDark else TeaGold,
+                            letterSpacing = 1.sp,
+                            fontSize = 10.sp
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
+                            fontSize = 16.sp
+                        )
+                    )
+                    Text(
+                        text = "$weightPerUnitKg kg / packet",
+                        style = MaterialTheme.typography.labelSmall.copy(color = TeaTextSecondary)
+                    )
+                }
+
+                // Stepper Controls
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     IconButton(
-                        onClick = { if (formState.unitCount > 1) onUnitCountChange(formState.unitCount - 1) },
+                        onClick = { if (currentQty > 0) onQtyChange(currentQty - 1) },
+                        enabled = currentQty > 0,
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(34.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(TeaCreamBg)
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                            .background(if (currentQty > 0) TeaCreamBg else Color(0xFFF2F0EB))
+                            .border(1.dp, if (currentQty > 0) TeaGreenPrimary else Color.LightGray, RoundedCornerShape(8.dp))
                     ) {
-                        Icon(Icons.Default.Remove, contentDescription = "Decrease Units")
+                        Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = "Decrease $label",
+                            tint = if (currentQty > 0) TeaGreenDark else Color.Gray,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
 
                     Surface(
-                        modifier = Modifier.width(68.dp),
+                        modifier = Modifier.width(52.dp),
                         shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFFF9F7F3),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.5f))
+                        color = if (isSelected) Color.White else Color(0xFFF9F7F3),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (isSelected) TeaGreenPrimary else TeaGold.copy(alpha = 0.5f)
+                        )
                     ) {
                         Text(
-                            text = "${formState.unitCount}",
-                            modifier = Modifier.padding(vertical = 8.dp),
+                            text = "$currentQty",
+                            modifier = Modifier.padding(vertical = 6.dp),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
-                                color = TeaTextPrimary
+                                color = if (isSelected) TeaGreenDark else TeaTextPrimary,
+                                fontSize = 15.sp
                             )
                         )
                     }
 
                     IconButton(
-                        onClick = { onUnitCountChange(formState.unitCount + 1) },
+                        onClick = { onQtyChange(currentQty + 1) },
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(34.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(TeaCreamBg)
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp))
+                            .background(TeaGreenPrimary)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Increase Units")
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Increase $label",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
+            }
 
-                // Quick Increment presets
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf(5, 10, 20, 50).forEach { preset ->
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Quick Presets & Subtotal
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf(0, 5, 10, 20, 50).forEach { preset ->
+                        val isPresetActive = (preset == 0 && currentQty == 0) || (preset > 0 && currentQty == preset)
                         Surface(
-                            modifier = Modifier.clickable { onUnitCountChange(preset) },
+                            modifier = Modifier.clickable { onQtyChange(preset) },
                             shape = RoundedCornerShape(6.dp),
-                            color = if (formState.unitCount == preset) TeaGold else TeaCreamBg,
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD6CEBF))
+                            color = if (isPresetActive) TeaGold else Color(0xFFF5F2EA),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDCD6CA))
                         ) {
                             Text(
-                                text = "+$preset",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                text = if (preset == 0) "Clear" else "+$preset",
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = if (formState.unitCount == preset) TeaGreenDark else TeaTextPrimary
+                                    fontSize = 11.sp,
+                                    color = if (isPresetActive) TeaGreenDark else TeaTextPrimary
                                 )
                             )
                         }
                     }
+                }
+
+                if (currentQty > 0) {
+                    Text(
+                        text = "${String.format(Locale.US, "%.3f", subtotalKg)} KG",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TeaGreenDark
+                        )
+                    )
                 }
             }
         }
@@ -773,11 +714,25 @@ private fun CustomerInfoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("input_customer_name"),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("Customer Name *") },
                 isError = formState.nameError != null,
                 supportingText = formState.nameError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -789,11 +744,25 @@ private fun CustomerInfoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("input_shop_name"),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("Shop / Business / Hotel Name *") },
                 isError = formState.shopError != null,
                 supportingText = formState.shopError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
                 leadingIcon = { Icon(Icons.Default.Storefront, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -805,13 +774,27 @@ private fun CustomerInfoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("input_mobile_number"),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("Mobile Number (WhatsApp) *") },
                 placeholder = { Text("e.g. 0300-1234567") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 isError = formState.mobileError != null,
                 supportingText = formState.mobileError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
                 leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -821,9 +804,23 @@ private fun CustomerInfoCard(
                 value = formState.city,
                 onValueChange = onCityChange,
                 modifier = Modifier.fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("City / Commercial Area *") },
                 leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -835,13 +832,27 @@ private fun CustomerInfoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("input_address"),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("Complete Shop Delivery Address *") },
                 placeholder = { Text("Shop #, Market/Plaza Name, Street / Road landmark") },
                 minLines = 2,
                 isError = formState.addressError != null,
                 supportingText = formState.addressError?.let { { Text(it, color = MaterialTheme.colorScheme.error) } },
                 leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -851,10 +862,24 @@ private fun CustomerInfoCard(
                 value = formState.notes,
                 onValueChange = onNotesChange,
                 modifier = Modifier.fillMaxWidth(),
+                textStyle = LocalTextStyle.current.copy(color = Color.Black),
                 label = { Text("Additional Notes (Optional)") },
                 placeholder = { Text("e.g. Call before delivery, deliver in morning batch") },
                 leadingIcon = { Icon(Icons.Default.Notes, contentDescription = null, tint = TeaGreenPrimary) },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color.Black,
+                    focusedBorderColor = TeaGreenPrimary,
+                    unfocusedBorderColor = TeaBorder,
+                    focusedLabelColor = TeaGreenPrimary,
+                    unfocusedLabelColor = Color(0xFF444444),
+                    focusedPlaceholderColor = Color(0xFF777777),
+                    unfocusedPlaceholderColor = Color(0xFF888888),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
             )
         }
     }
@@ -995,10 +1020,10 @@ fun OrderConfirmationView(
                     )
 
                     ConfirmationRow("Tea Selection", order.teaBlend, isBold = true)
-                    ConfirmationRow("Package Size", order.teaSize)
-                    ConfirmationRow("Units Ordered", "${order.unitCount} packets")
+                    ConfirmationRow("Packages Selected", order.teaSize)
+                    ConfirmationRow("Total Packets", "${order.unitCount} packets")
                     ConfirmationRow(
-                        "Total Volume",
+                        "Total Weight",
                         "${String.format(Locale.US, "%.2f", order.totalKg)} KG",
                         isHighlight = true
                     )
