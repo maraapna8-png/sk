@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import com.example.ui.theme.TeaBorder
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +24,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Send
@@ -166,7 +170,12 @@ fun AboutContactScreen(
             }
         }
 
-        // 3. Executive Leadership
+        // 3. Frequently Asked Questions (FAQs)
+        item {
+            FaqSection()
+        }
+
+        // 4. Executive Leadership
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -542,6 +551,128 @@ private fun ContactDetailRow(
                 modifier = Modifier.height(32.dp)
             ) {
                 Text(actionLabel, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+private data class FaqData(
+    val question: String,
+    val answer: String
+)
+
+@Composable
+private fun FaqSection() {
+    val faqs = listOf(
+        FaqData(
+            question = "How can I place a wholesale tea order for my shop or hotel?",
+            answer = "You can place your order directly using the 'Place Order' tab in this app, or message our sales team on WhatsApp (0306-6922254). Choose your blend and package sizes, and we will dispatch directly to your address."
+        ),
+        FaqData(
+            question = "What is the minimum order quantity (MOQ)?",
+            answer = "For retail consumer packets (125g, 250g, 500g, 1kg), the minimum total order is 5 Kg. For commercial bulk sacks, you can order from 10 Kg up to custom bulk sacks."
+        ),
+        FaqData(
+            question = "What delivery areas do you cover across Pakistan?",
+            answer = "We provide same-day / next-day delivery across Lahore and fast cargo dispatch services to all major cities in Punjab and nationwide across Pakistan."
+        ),
+        FaqData(
+            question = "Are factory wholesale rates guaranteed?",
+            answer = "Yes! SK Tea supplies directly from our primary processing center in Akbari Mandi, Lahore, bypassing all middlemen to offer maximum profitability to shopkeepers and hotel owners."
+        ),
+        FaqData(
+            question = "How can I track my order after submitting?",
+            answer = "Open the 'Track Order' tab in this app and enter your Mobile Number or Order ID to check your live order status (Received, Packing, Out for Delivery, Delivered)."
+        ),
+        FaqData(
+            question = "What payment methods are accepted?",
+            answer = "We accept Cash on Delivery (COD), JazzCash, EasyPaisa, and Direct Bank Transfers upon dispatch confirmation."
+        )
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5DFD4))
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.HelpOutline,
+                    contentDescription = null,
+                    tint = TeaGold,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "FREQUENTLY ASKED QUESTIONS (FAQs)",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = TeaGreenPrimary,
+                        letterSpacing = 1.sp
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            faqs.forEachIndexed { index, faq ->
+                FaqItemRow(faq = faq)
+                if (index < faqs.size - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 10.dp),
+                        color = Color(0xFFEFE8DE)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FaqItemRow(faq: FaqData) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { expanded = !expanded }
+            .padding(vertical = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = faq.question,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = TeaTextPrimary
+                ),
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = if (expanded) "Collapse" else "Expand",
+                tint = TeaGreenPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        AnimatedVisibility(visible = expanded) {
+            Column {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = faq.answer,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = TeaTextSecondary,
+                        lineHeight = 20.sp
+                    )
+                )
             }
         }
     }

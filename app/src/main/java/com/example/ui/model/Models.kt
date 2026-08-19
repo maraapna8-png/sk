@@ -112,7 +112,7 @@ sealed interface NavTab {
     data object TrackOrder : NavTab { override val title = "Track Order" }
     data object History : NavTab { override val title = "My Orders" }
     data object Admin : NavTab { override val title = "Admin Portal" }
-    data object ContactAbout : NavTab { override val title = "About & Contact" }
+    data object ContactAbout : NavTab { override val title = "About SK Tea" }
 
     // Alias for compatibility
     val OrderHistory: NavTab get() = History

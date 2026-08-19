@@ -121,7 +121,7 @@ fun getAppStrings(language: AppLanguage): AppStrings {
             navOrder = "Place Order",
             navTrack = "Track Order",
             navHistory = "Order History",
-            navContact = "Contact",
+            navContact = "About",
             navAdmin = "Admin",
 
             homeWelcome = "Welcome to SK Tea",
@@ -194,7 +194,7 @@ fun getAppStrings(language: AppLanguage): AppStrings {
             navOrder = "آرڈر کریں",
             navTrack = "ٹریکنگ",
             navHistory = "ہسٹری",
-            navContact = "رابطہ",
+            navContact = "تعارف",
             navAdmin = "ایڈمن",
 
             homeWelcome = "ایس کے ٹی کمپنی میں خوش آمدید",
@@ -267,7 +267,7 @@ fun getAppStrings(language: AppLanguage): AppStrings {
             navOrder = "Order",
             navTrack = "Track",
             navHistory = "History",
-            navContact = "Contact",
+            navContact = "About",
             navAdmin = "Admin",
 
             homeWelcome = "Welcome to SK Tea",
