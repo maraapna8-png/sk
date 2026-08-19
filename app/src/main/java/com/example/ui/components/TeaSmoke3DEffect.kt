@@ -110,19 +110,7 @@ fun TeaSmoke3DOverlay(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    windShiftX = (windShiftX + 1.6f) % 6.28f
-                }
-            }
-            .pointerInput(Unit) {
-                detectDragGestures { _, dragAmount ->
-                    windShiftX += dragAmount.x * 0.02f
-                    windShiftY += dragAmount.y * 0.02f
-                }
-            }
+        modifier = modifier.fillMaxSize()
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val width = size.width

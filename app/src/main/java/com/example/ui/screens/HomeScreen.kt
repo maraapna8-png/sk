@@ -1,6 +1,9 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,9 +64,14 @@ import com.example.R
 import com.example.ui.components.SktBrandLogo
 import com.example.ui.components.TeaSmoke3DOverlay
 import com.example.ui.components.launchWhatsApp
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.ui.model.AppStrings
 import com.example.ui.model.NavTab
 import com.example.ui.model.SKT_TEA_CATALOG
 import com.example.ui.model.TeaBlend
+import com.example.ui.model.getAppStrings
+import com.example.ui.viewmodel.SktViewModel
 import com.example.ui.theme.TeaCreamBg
 import com.example.ui.theme.TeaGold
 import com.example.ui.theme.TeaGoldContainer
@@ -78,10 +86,13 @@ import com.example.ui.theme.TeaTextSecondary
 
 @Composable
 fun HomeScreen(
+    viewModel: SktViewModel,
     onNavigate: (NavTab) -> Unit,
     onSelectBlendToOrder: (String) -> Unit
 ) {
     val context = LocalContext.current
+    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
+    val strings = getAppStrings(selectedLanguage)
 
     LazyColumn(
         modifier = Modifier
@@ -91,6 +102,7 @@ fun HomeScreen(
         // 1. Hero Section
         item {
             HeroBannerSection(
+                strings = strings,
                 onPlaceOrder = { onNavigate(NavTab.PlaceOrder) },
                 onContactUs = { onNavigate(NavTab.ContactAbout) }
             )
@@ -101,7 +113,7 @@ fun HomeScreen(
             TrustMetricsStrip()
         }
 
-        // 3. How It Works (4-Step Flow)
+        // 3. How It Works (3-Step Flow)
         item {
             HowItWorksSection(onStartOrder = { onNavigate(NavTab.PlaceOrder) })
         }
@@ -148,6 +160,7 @@ fun HomeScreen(
 
 @Composable
 private fun HeroBannerSection(
+    strings: AppStrings,
     onPlaceOrder: () -> Unit,
     onContactUs: () -> Unit
 ) {
@@ -183,7 +196,7 @@ private fun HeroBannerSection(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "PREMIUM WHOLESALE & RETAIL TEA",
+                        text = strings.homeWelcome.uppercase(),
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = TeaGoldLight,
@@ -197,7 +210,7 @@ private fun HeroBannerSection(
 
             // Main Brand Title
             Text(
-                text = "SK Tea Company",
+                text = "SK Tea",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -208,7 +221,7 @@ private fun HeroBannerSection(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "“Quality Tea, Trusted Service.”",
+                text = "“${strings.appTagline}”",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Medium,
                     color = TeaGoldLight,
@@ -219,7 +232,7 @@ private fun HeroBannerSection(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Supplying high-aroma granular and golden leaf tea blends to commercial tea shops, hotels, and retail stores across Pakistan with reliable doorstep delivery.",
+                text = strings.homeQualityDesc,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color.White.copy(alpha = 0.88f),
                     lineHeight = 22.sp
@@ -227,6 +240,68 @@ private fun HeroBannerSection(
             )
 
             Spacer(modifier = Modifier.height(18.dp))
+
+            // Hero Image Card loading Drive URL
+            Card(
+                onClick = onPlaceOrder,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp),
+                shape = RoundedCornerShape(18.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.4f))
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val context = LocalContext.current
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(R.drawable.img_hero_tea)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Fresh Tea Plantation & Brew",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center
+                    )
+
+                    // Subtle Gradient Scrim for Contrast & Text Readability
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.45f)
+                                    )
+                                )
+                            )
+                    )
+
+                    // Bottom Label
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(TeaGoldLight)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = strings.homeSubtitle,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -252,7 +327,7 @@ private fun HeroBannerSection(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Place Your Order",
+                        text = strings.homePlaceOrderBtn,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = TeaGreenDark
@@ -277,7 +352,7 @@ private fun HeroBannerSection(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Contact Us",
+                        text = strings.navContact,
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.SemiBold
                         )
@@ -369,7 +444,7 @@ private fun HowItWorksSection(onStartOrder: () -> Unit) {
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Simple 4-Step Ordering Process",
+            text = "Simple 3-Step Ordering Process",
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 color = TeaTextPrimary
@@ -381,24 +456,18 @@ private fun HowItWorksSection(onStartOrder: () -> Unit) {
         val steps = listOf(
             StepData(
                 number = "1",
-                title = "Select Tea Quantity",
-                desc = "Choose 125g, 250g, 500g, 1KG packs or enter custom bulk kilograms.",
-                icon = Icons.Default.Eco
-            ),
-            StepData(
-                number = "2",
                 title = "Enter Shop Details",
                 desc = "Provide your name, shop/hotel name, phone, and delivery address.",
                 icon = Icons.Default.Storefront
             ),
             StepData(
-                number = "3",
+                number = "2",
                 title = "Review Order Summary",
                 desc = "Verify blend type, total KG calculation, and delivery details.",
                 icon = Icons.Default.ReceiptLong
             ),
             StepData(
-                number = "4",
+                number = "3",
                 title = "Submit & Track",
                 desc = "Get unique SK Order ID, instant WhatsApp dispatch tracking.",
                 icon = Icons.Default.TrackChanges

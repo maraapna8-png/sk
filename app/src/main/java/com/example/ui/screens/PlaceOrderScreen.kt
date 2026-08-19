@@ -88,6 +88,7 @@ import com.example.ui.theme.TeaSurfaceVariant
 import com.example.ui.theme.TeaTextPrimary
 import com.example.ui.theme.TeaTextSecondary
 import com.example.ui.theme.TeaTextTertiary
+import com.example.ui.model.getAppStrings
 import com.example.ui.viewmodel.OrderFormState
 import com.example.ui.viewmodel.SktViewModel
 import java.util.Locale
@@ -97,6 +98,8 @@ fun PlaceOrderScreen(
     viewModel: SktViewModel,
     onNavigate: (NavTab) -> Unit
 ) {
+    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
+    val strings = getAppStrings(selectedLanguage)
     val formState by viewModel.orderForm.collectAsStateWithLifecycle()
     val lastOrder by viewModel.lastSubmittedOrder.collectAsStateWithLifecycle()
     val context = LocalContext.current

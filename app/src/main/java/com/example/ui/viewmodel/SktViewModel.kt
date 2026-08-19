@@ -9,6 +9,7 @@ import com.example.data.local.entity.OrderEntity
 import com.example.data.repository.SktTeaRepository
 import com.example.ui.model.AUTHORIZED_ADMINS
 import com.example.ui.model.AdminAccount
+import com.example.ui.model.AppLanguage
 import com.example.ui.model.NavTab
 import com.example.ui.model.PACK_OPTIONS
 import com.example.ui.model.SKT_TEA_CATALOG
@@ -89,6 +90,14 @@ class SktViewModel(application: Application) : AndroidViewModel(application) {
     // Active Navigation Tab
     private val _currentTab = MutableStateFlow<NavTab>(NavTab.Home)
     val currentTab: StateFlow<NavTab> = _currentTab.asStateFlow()
+
+    // App Language State
+    private val _selectedLanguage = MutableStateFlow<AppLanguage>(AppLanguage.FORMAL_ENGLISH)
+    val selectedLanguage: StateFlow<AppLanguage> = _selectedLanguage.asStateFlow()
+
+    fun setLanguage(language: AppLanguage) {
+        _selectedLanguage.value = language
+    }
 
     fun navigateTo(tab: NavTab) {
         _currentTab.value = tab

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalMall
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.ReceiptLong
@@ -57,11 +58,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.ui.components.SktBrandLogo
 import com.example.ui.components.launchWhatsApp
 import com.example.ui.components.makePhoneCall
+import com.example.ui.model.AppLanguage
 import com.example.ui.model.COMPANY_CONTACT
 import com.example.ui.model.NavTab
+import com.example.ui.model.getAppStrings
 import com.example.ui.screens.AboutContactScreen
 import com.example.ui.screens.AdminDashboardScreen
 import com.example.ui.screens.HomeScreen
@@ -76,6 +91,7 @@ import com.example.ui.theme.TeaGoldContainer
 import com.example.ui.theme.TeaGreenDark
 import com.example.ui.theme.TeaGreenPrimary
 import com.example.ui.theme.TeaTextPrimary
+import com.example.ui.theme.TeaTextSecondary
 import com.example.ui.viewmodel.SktViewModel
 
 class MainActivity : ComponentActivity() {
@@ -98,6 +114,8 @@ class MainActivity : ComponentActivity() {
 fun SktTeaAppRoot(viewModel: SktViewModel) {
     val currentTab by viewModel.currentTab.collectAsStateWithLifecycle()
     val stats by viewModel.dashboardStats.collectAsStateWithLifecycle()
+    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
+    val strings = getAppStrings(selectedLanguage)
     val context = LocalContext.current
 
     Scaffold(
@@ -110,7 +128,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                         modifier = Modifier.clickable { viewModel.navigate(NavTab.Home) }
                     ) {
                         SktBrandLogo(size = 32, showText = false)
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
                                 text = "SK TEA",
@@ -121,27 +139,22 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                                 )
                             )
                             Text(
-                                text = "Quality Tea, Trusted Service",
+                                text = strings.appTagline,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     color = TeaGold,
                                     fontSize = 10.sp
-                                )
+                                ),
+                                maxLines = 1
                             )
                         }
                     }
                 },
                 actions = {
-                    // Quick Call Action
-                    IconButton(
-                        onClick = { makePhoneCall(context, COMPANY_CONTACT.ownerPhone) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Phone,
-                            contentDescription = "Call SK Tea",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    // Top Right Language Switcher Button (Small Dropdown Menu)
+                    LanguageSelectionMenu(
+                        currentLanguage = selectedLanguage,
+                        onLanguageSelected = { viewModel.setLanguage(it) }
+                    )
 
                     // Quick WhatsApp Action
                     IconButton(
@@ -183,6 +196,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
             SktBottomNavBar(
                 currentTab = currentTab,
                 newOrdersCount = stats.newOrders,
+                selectedLanguage = selectedLanguage,
                 onTabSelected = { viewModel.navigate(it) }
             )
         },
@@ -224,6 +238,7 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
                 when (tab) {
                     is NavTab.Home -> {
                         HomeScreen(
+                            viewModel = viewModel,
                             onNavigate = { viewModel.navigate(it) },
                             onSelectBlendToOrder = { blendName ->
                                 viewModel.updateSelectedBlend(blendName)
@@ -281,21 +296,153 @@ fun SktTeaAppRoot(viewModel: SktViewModel) {
 }
 
 @Composable
+private fun LanguageSelectionMenu(
+    currentLanguage: AppLanguage,
+    onLanguageSelected: (AppLanguage) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Surface(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(20.dp),
+            color = TeaGreenPrimary.copy(alpha = 0.45f),
+            border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.8f)),
+            modifier = Modifier
+                .padding(end = 4.dp)
+                .testTag("language_selector_btn")
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+            ) {
+                Text(
+                    text = currentLanguage.flag,
+                    fontSize = 13.sp
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = currentLanguage.shortLabel,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Language Dropdown",
+                    tint = TeaGold,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(Color.White)
+                .width(210.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(TeaGreenDark)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = null,
+                        tint = TeaGold,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Select Language / زبان",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            }
+
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+            AppLanguage.values().forEach { lang ->
+                val isSelected = lang == currentLanguage
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = lang.flag,
+                                fontSize = 18.sp
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = lang.title,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (isSelected) TeaGreenPrimary else TeaTextPrimary
+                                    )
+                                )
+                                Text(
+                                    text = lang.subtitle,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = TeaTextSecondary,
+                                        fontSize = 10.sp
+                                    )
+                                )
+                            }
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = TeaGold,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    },
+                    onClick = {
+                        onLanguageSelected(lang)
+                        expanded = false
+                    },
+                    modifier = Modifier.background(
+                        if (isSelected) TeaGoldContainer.copy(alpha = 0.35f) else Color.Transparent
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun SktBottomNavBar(
     currentTab: NavTab,
     newOrdersCount: Int,
+    selectedLanguage: AppLanguage,
     onTabSelected: (NavTab) -> Unit
 ) {
+    val strings = getAppStrings(selectedLanguage)
+
     NavigationBar(
         containerColor = Color.White,
         tonalElevation = 8.dp
     ) {
-        // Home
+        // 1. Home
         NavigationBarItem(
             selected = currentTab is NavTab.Home,
             onClick = { onTabSelected(NavTab.Home) },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Home", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+            icon = { Icon(Icons.Default.Home, contentDescription = strings.navHome) },
+            label = { Text(strings.navHome, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = TeaGreenDark,
                 selectedTextColor = TeaGreenPrimary,
@@ -303,20 +450,7 @@ private fun SktBottomNavBar(
             )
         )
 
-        // Products / Blends
-        NavigationBarItem(
-            selected = currentTab is NavTab.Products,
-            onClick = { onTabSelected(NavTab.Products) },
-            icon = { Icon(Icons.Default.Eco, contentDescription = "Tea Blends") },
-            label = { Text("Blends", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = TeaGreenDark,
-                selectedTextColor = TeaGreenPrimary,
-                indicatorColor = TeaGoldContainer
-            )
-        )
-
-        // Order Now (Prominent CTA)
+        // 2. Order Now (Prominent CTA)
         NavigationBarItem(
             selected = currentTab is NavTab.PlaceOrder,
             onClick = { onTabSelected(NavTab.PlaceOrder) },
@@ -330,7 +464,7 @@ private fun SktBottomNavBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.LocalMall,
-                        contentDescription = "Order",
+                        contentDescription = strings.navOrder,
                         tint = if (currentTab is NavTab.PlaceOrder) TeaGreenDark else Color.White,
                         modifier = Modifier.size(18.dp)
                     )
@@ -338,7 +472,7 @@ private fun SktBottomNavBar(
             },
             label = {
                 Text(
-                    "Order",
+                    strings.navOrder,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (currentTab is NavTab.PlaceOrder) TeaGreenPrimary else TeaTextPrimary
@@ -349,12 +483,12 @@ private fun SktBottomNavBar(
             )
         )
 
-        // Track Order
+        // 3. Track Order
         NavigationBarItem(
             selected = currentTab is NavTab.TrackOrder,
             onClick = { onTabSelected(NavTab.TrackOrder) },
-            icon = { Icon(Icons.Default.TrackChanges, contentDescription = "Track") },
-            label = { Text("Track", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+            icon = { Icon(Icons.Default.TrackChanges, contentDescription = strings.navTrack) },
+            label = { Text(strings.navTrack, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = TeaGreenDark,
                 selectedTextColor = TeaGreenPrimary,
@@ -362,12 +496,12 @@ private fun SktBottomNavBar(
             )
         )
 
-        // Orders History
+        // 4. Orders History
         NavigationBarItem(
             selected = currentTab is NavTab.History,
             onClick = { onTabSelected(NavTab.History) },
-            icon = { Icon(Icons.Default.ReceiptLong, contentDescription = "History") },
-            label = { Text("History", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+            icon = { Icon(Icons.Default.ReceiptLong, contentDescription = strings.navHistory) },
+            label = { Text(strings.navHistory, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = TeaGreenDark,
                 selectedTextColor = TeaGreenPrimary,
@@ -375,7 +509,20 @@ private fun SktBottomNavBar(
             )
         )
 
-        // Admin Portal
+        // 5. Contact & About
+        NavigationBarItem(
+            selected = currentTab is NavTab.ContactAbout,
+            onClick = { onTabSelected(NavTab.ContactAbout) },
+            icon = { Icon(Icons.Default.Info, contentDescription = strings.navContact) },
+            label = { Text(strings.navContact, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = TeaGreenDark,
+                selectedTextColor = TeaGreenPrimary,
+                indicatorColor = TeaGoldContainer
+            )
+        )
+
+        // 6. Admin Portal
         NavigationBarItem(
             selected = currentTab is NavTab.Admin,
             onClick = { onTabSelected(NavTab.Admin) },
@@ -388,13 +535,13 @@ private fun SktBottomNavBar(
                             }
                         }
                     ) {
-                        Icon(Icons.Default.AdminPanelSettings, contentDescription = "Admin")
+                        Icon(Icons.Default.AdminPanelSettings, contentDescription = strings.navAdmin)
                     }
                 } else {
-                    Icon(Icons.Default.AdminPanelSettings, contentDescription = "Admin")
+                    Icon(Icons.Default.AdminPanelSettings, contentDescription = strings.navAdmin)
                 }
             },
-            label = { Text("Admin", fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+            label = { Text(strings.navAdmin, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = TeaGreenDark,
                 selectedTextColor = TeaGreenPrimary,

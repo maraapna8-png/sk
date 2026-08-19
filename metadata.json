@@ -1,5 +1,5 @@
 {
-  "name": "SK Tea Company",
+  "name": "SK Tea",
   "description": "Official SK Tea Company ordering system, product catalog, order tracking, and admin management portal.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
