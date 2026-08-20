@@ -1,9 +1,8 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.ui.platform.LocalContext
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,7 +54,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -252,8 +250,8 @@ private fun HeroBannerSection(
                 border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.4f))
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    val context = LocalContext.current
-                    AsyncImage(
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    SubcomposeAsyncImage(
                         model = ImageRequest.Builder(context)
                             .data(R.drawable.img_hero_tea)
                             .crossfade(true)
@@ -261,7 +259,40 @@ private fun HeroBannerSection(
                         contentDescription = "Fresh Tea Plantation & Brew",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center
+                        alignment = Alignment.Center,
+                        error = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.linearGradient(
+                                            colors = listOf(TeaGreenDark, TeaGreenPrimary, Color(0xFF1E3A2B))
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Eco,
+                                        contentDescription = null,
+                                        tint = TeaGold,
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "SK TEA COMPANY",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            color = TeaGold,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 2.sp
+                                        )
+                                    )
+                                }
+                            }
+                        }
                     )
 
                     // Subtle Gradient Scrim for Contrast & Text Readability

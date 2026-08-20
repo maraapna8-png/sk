@@ -105,26 +105,27 @@ fun PlaceOrderScreen(
     val context = LocalContext.current
 
     // If an order was just submitted, show Order Confirmation Screen
-    if (lastOrder != null) {
+    val submittedOrder = lastOrder
+    if (submittedOrder != null) {
         OrderConfirmationView(
-            order = lastOrder!!,
+            order = submittedOrder,
             onTrackOrder = {
                 viewModel.clearConfirmation()
-                viewModel.trackOrder(lastOrder!!.orderNumber)
+                viewModel.trackOrder(submittedOrder.orderNumber)
                 onNavigate(NavTab.TrackOrder)
             },
             onWhatsAppSupport = {
                 val whatsappMsg = """
                     *SK Tea Order*
-                    Order ID: ${lastOrder!!.orderNumber}
-                    Customer Name: ${lastOrder!!.customerName}
-                    Shop Name: ${lastOrder!!.shopName}
-                    Mobile: ${lastOrder!!.mobileNumber}
-                    Tea Blend: ${lastOrder!!.teaBlend}
-                    Tea Size: ${lastOrder!!.teaSize} (${lastOrder!!.unitCount} units)
-                    Total KG: ${String.format(Locale.US, "%.2f", lastOrder!!.totalKg)} KG
-                    Delivery Address: ${lastOrder!!.address}, ${lastOrder!!.city}
-                    Notes: ${lastOrder!!.notes.ifBlank { "N/A" }}
+                    Order ID: ${submittedOrder.orderNumber}
+                    Customer Name: ${submittedOrder.customerName}
+                    Shop Name: ${submittedOrder.shopName}
+                    Mobile: ${submittedOrder.mobileNumber}
+                    Tea Blend: ${submittedOrder.teaBlend}
+                    Tea Size: ${submittedOrder.teaSize} (${submittedOrder.unitCount} units)
+                    Total KG: ${String.format(Locale.US, "%.2f", submittedOrder.totalKg)} KG
+                    Delivery Address: ${submittedOrder.address}, ${submittedOrder.city}
+                    Notes: ${submittedOrder.notes.ifBlank { "N/A" }}
                 """.trimIndent()
                 launchWhatsApp(context, whatsappMsg)
             },
@@ -289,10 +290,10 @@ fun PlaceOrderScreen(
                         }
                     }
 
-                    if (formState.quantityError != null) {
+                    formState.quantityError?.let { qtyErr ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = formState.quantityError!!,
+                            text = qtyErr,
                             style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFFFB4A9))
                         )
                     }

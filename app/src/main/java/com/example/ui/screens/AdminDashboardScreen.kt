@@ -69,6 +69,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -145,23 +146,25 @@ fun AdminDashboardScreen(
     }
 
     // Modal: Admin Order Detail & Status Modifier Dialog
-    if (selectedOrder != null) {
+    val activeOrder = selectedOrder
+    if (activeOrder != null) {
         AdminOrderDetailDialog(
-            order = selectedOrder!!,
+            order = activeOrder,
             onStatusChange = { newStatus ->
-                viewModel.updateStatus(selectedOrder!!.id, newStatus)
+                viewModel.updateStatus(activeOrder.id, newStatus)
             },
             onDismiss = { viewModel.selectAdminOrder(null) }
         )
     }
 
     // Modal: Customer Profile & Order History Dialog
-    if (selectedCustomer != null) {
+    val activeCustomer = selectedCustomer
+    if (activeCustomer != null) {
         val customerOrders = allOrders.filter {
-            it.mobileNumber.replace("-", "").trim() == selectedCustomer!!.mobileNumber.replace("-", "").trim()
+            it.mobileNumber.replace("-", "").trim() == activeCustomer.mobileNumber.replace("-", "").trim()
         }
         AdminCustomerDetailDialog(
-            customer = selectedCustomer!!,
+            customer = activeCustomer,
             orders = customerOrders,
             onDismiss = { viewModel.selectAdminCustomer(null) },
             onOpenOrder = { order ->
@@ -284,9 +287,17 @@ fun AdminDashboardScreen(
 
         // TAB 0: Real-Time Business Dashboard
         if (adminSectionTab == 0) {
+            // Owner Sales Analytics by Time Period (Today, Last 3 Days, This Week, This Month, Previous Month, This Year)
+            item {
+                SalesAnalyticsCard(
+                    allOrders = allOrders,
+                    onSelectOrder = { order -> viewModel.selectAdminOrder(order) }
+                )
+            }
+
             item {
                 Text(
-                    text = "Live Order Statistics & Volume",
+                    text = "Overall Business Statistics & Volume",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = TeaGreenPrimary
@@ -1111,4 +1122,448 @@ private fun AdminCustomerDetailDialog(
             }
         }
     )
+}
+
+enum class SalesPeriodFilter(val title: String, val badgeText: String) {
+    TODAY("Today", "آج"),
+    LAST_3_DAYS("Last 3 Days", "آخری 3 دن"),
+    THIS_WEEK("This Week", "اس ہفتے"),
+    THIS_MONTH("This Month", "اس مہینے"),
+    PREVIOUS_MONTH("Previous Month", "پچھلے مہینے"),
+    THIS_YEAR("This Year", "اس سال")
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun SalesAnalyticsCard(
+    allOrders: List<OrderEntity>,
+    onSelectOrder: (OrderEntity) -> Unit
+) {
+    var selectedPeriod by remember { mutableStateOf<SalesPeriodFilter>(SalesPeriodFilter.TODAY) }
+
+    val now = System.currentTimeMillis()
+    val startEndRange = remember(selectedPeriod, now) {
+        getPeriodTimeRange(selectedPeriod, now)
+    }
+
+    val startTime = startEndRange.first
+    val endTime = startEndRange.second
+
+    val periodOrders = remember(allOrders, startTime, endTime) {
+        allOrders.filter { order ->
+            order.timestamp in startTime..endTime
+        }
+    }
+
+    val totalKg = periodOrders.sumOf { it.totalKg }
+    val totalOrdersCount = periodOrders.size
+
+    val deliveredOrders = periodOrders.filter { it.status.equals("Delivered", ignoreCase = true) }
+    val deliveredKg = deliveredOrders.sumOf { it.totalKg }
+    val deliveredCount = deliveredOrders.size
+
+    val pendingOrders = periodOrders.filter { !it.status.equals("Delivered", ignoreCase = true) && !it.status.equals("Cancelled", ignoreCase = true) }
+    val pendingKg = pendingOrders.sumOf { it.totalKg }
+    val pendingCount = pendingOrders.size
+
+    // Estimated revenue based on average PKR 1,400 / KG wholesale rate
+    val estimatedRevenue = (totalKg * 1400.0).toLong()
+
+    // Blend breakdown
+    val blendMap = periodOrders
+        .groupBy { it.teaBlend }
+        .mapValues { entry -> entry.value.sumOf { it.totalKg } }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5DFD4))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.ReceiptLong,
+                        contentDescription = null,
+                        tint = TeaGreenPrimary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = "SALES & REVENUE REPORT",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = TeaGreenPrimary,
+                                letterSpacing = 1.sp
+                            )
+                        )
+                        Text(
+                            text = "سیلز رپورٹس (Owner Portal)",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = TeaGold,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = TeaGreenContainer
+                ) {
+                    Text(
+                        text = "${String.format(Locale.US, "%.1f", totalKg)} KG Sold",
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = TeaGreenDark,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Select Time Period (وقت کا انتخاب کریں):",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = TeaTextPrimary
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 6 Period Chips Grid / FlowRow
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                SalesPeriodFilter.entries.forEach { period ->
+                    val isSelected = selectedPeriod == period
+                    Surface(
+                        modifier = Modifier.clickable { selectedPeriod = period },
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (isSelected) TeaGreenPrimary else TeaCreamBg,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (isSelected) TeaGreenPrimary else Color(0xFFE5DFD4)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = period.title,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) Color.White else TeaTextPrimary
+                                )
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "(${period.badgeText})",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                    color = if (isSelected) TeaGoldContainer else TeaTextSecondary
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Summary Metrics Box
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = TeaGoldContainer.copy(alpha = 0.4f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.6f))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Text(
+                        text = "${selectedPeriod.title} Summary (${selectedPeriod.badgeText}):",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TeaGreenDark
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        MetricColumn(
+                            label = "Total Sales",
+                            value = "${String.format(Locale.US, "%.1f", totalKg)} KG",
+                            subText = "$totalOrdersCount Orders"
+                        )
+                        MetricColumn(
+                            label = "Est. Revenue",
+                            value = "Rs. ${java.text.NumberFormat.getNumberInstance(Locale.US).format(estimatedRevenue)}",
+                            subText = "Wholesale Total"
+                        )
+                        MetricColumn(
+                            label = "Delivered",
+                            value = "${String.format(Locale.US, "%.1f", deliveredKg)} KG",
+                            subText = "$deliveredCount Orders"
+                        )
+                    }
+
+                    if (pendingCount > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider(color = TeaGold.copy(alpha = 0.3f))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Pending / Active Deliveries:",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    color = TeaTextSecondary,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            )
+                            Text(
+                                text = "${String.format(Locale.US, "%.1f", pendingKg)} KG ($pendingCount Orders)",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    color = StatusProcessing,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Blend Breakdown (if orders exist)
+            if (blendMap.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(14.dp))
+                Text(
+                    text = "Tea Blend Breakdown (${selectedPeriod.title}):",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = TeaTextPrimary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                blendMap.forEach { (blend, kg) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 3.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(TeaGreenPrimary)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = blend,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TeaTextPrimary
+                                )
+                            )
+                        }
+                        Text(
+                            text = "${String.format(Locale.US, "%.1f", kg)} KG",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = TeaGreenDark
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Orders List Preview for this Period
+            if (periodOrders.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = Color(0xFFEFE8DE))
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "Orders Placed in ${selectedPeriod.title} ($totalOrdersCount):",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = TeaTextPrimary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                periodOrders.forEach { order ->
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 3.dp)
+                            .clickable { onSelectOrder(order) },
+                        shape = RoundedCornerShape(8.dp),
+                        color = TeaCreamBg,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5DFD4))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "${order.orderNumber} • ${order.shopName}",
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = TeaTextPrimary
+                                    )
+                                )
+                                Text(
+                                    text = "${order.teaBlend} (${order.totalKg} KG)",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = TeaTextSecondary
+                                    )
+                                )
+                            }
+                            SktStatusBadge(status = order.status)
+                        }
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "No tea sales recorded during this time period (${selectedPeriod.title}).",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = TeaTextSecondary,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetricColumn(
+    label: String,
+    value: String,
+    subText: String
+) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                color = TeaTextSecondary,
+                fontSize = 11.sp
+            )
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = TeaGreenDark
+            )
+        )
+        Text(
+            text = subText,
+            style = MaterialTheme.typography.labelSmall.copy(
+                color = TeaGold,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 10.sp
+            )
+        )
+    }
+}
+
+private fun getPeriodTimeRange(period: SalesPeriodFilter, now: Long): Pair<Long, Long> {
+    val cal = java.util.Calendar.getInstance()
+    cal.timeInMillis = now
+
+    val startTime: Long
+    val endTime: Long = now
+
+    when (period) {
+        SalesPeriodFilter.TODAY -> {
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            startTime = cal.timeInMillis
+        }
+        SalesPeriodFilter.LAST_3_DAYS -> {
+            cal.add(java.util.Calendar.DAY_OF_YEAR, -2)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            startTime = cal.timeInMillis
+        }
+        SalesPeriodFilter.THIS_WEEK -> {
+            cal.set(java.util.Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            startTime = cal.timeInMillis
+        }
+        SalesPeriodFilter.THIS_MONTH -> {
+            cal.set(java.util.Calendar.DAY_OF_MONTH, 1)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            startTime = cal.timeInMillis
+        }
+        SalesPeriodFilter.PREVIOUS_MONTH -> {
+            val startCal = java.util.Calendar.getInstance()
+            startCal.timeInMillis = now
+            startCal.add(java.util.Calendar.MONTH, -1)
+            startCal.set(java.util.Calendar.DAY_OF_MONTH, 1)
+            startCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            startCal.set(java.util.Calendar.MINUTE, 0)
+            startCal.set(java.util.Calendar.SECOND, 0)
+            startCal.set(java.util.Calendar.MILLISECOND, 0)
+            startTime = startCal.timeInMillis
+
+            val endCal = java.util.Calendar.getInstance()
+            endCal.timeInMillis = now
+            endCal.set(java.util.Calendar.DAY_OF_MONTH, 1)
+            endCal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            endCal.set(java.util.Calendar.MINUTE, 0)
+            endCal.set(java.util.Calendar.SECOND, 0)
+            endCal.set(java.util.Calendar.MILLISECOND, 0)
+            return Pair(startTime, endCal.timeInMillis)
+        }
+        SalesPeriodFilter.THIS_YEAR -> {
+            cal.set(java.util.Calendar.DAY_OF_YEAR, 1)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            cal.set(java.util.Calendar.SECOND, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            startTime = cal.timeInMillis
+        }
+    }
+
+    return Pair(startTime, endTime)
 }

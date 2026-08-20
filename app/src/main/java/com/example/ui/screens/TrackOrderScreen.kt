@@ -241,7 +241,7 @@ fun TrackOrderScreen(
         }
 
         // Error / Not found message
-        if (trackingMessage != null) {
+        trackingMessage?.let { msg ->
             item {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -261,7 +261,7 @@ fun TrackOrderScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = trackingMessage!!,
+                            text = msg,
                             style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF991B1B))
                         )
                     }
@@ -270,9 +270,10 @@ fun TrackOrderScreen(
         }
 
         // Tracked Order Details Card
-        if (trackedOrder != null) {
+        val currentTrackedOrder = trackedOrder
+        if (currentTrackedOrder != null) {
             item {
-                val order = trackedOrder!!
+                val order = currentTrackedOrder
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),

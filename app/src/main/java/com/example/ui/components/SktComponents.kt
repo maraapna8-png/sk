@@ -29,7 +29,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.HourglassEmpty
-import androidx.compose.material.icons.filled.LocalShipping
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Share
@@ -58,7 +60,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -143,11 +144,23 @@ fun SktBrandLogo(
                 .background(TeaGreenDark),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.img_skt_logo),
+            val context = androidx.compose.ui.platform.LocalContext.current
+            SubcomposeAsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(com.example.R.drawable.img_skt_logo)
+                    .crossfade(true)
+                    .build(),
                 contentDescription = "SK Tea Logo",
                 modifier = Modifier.size((size * 0.9).dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                error = {
+                    Icon(
+                        imageVector = Icons.Default.LocalCafe,
+                        contentDescription = "SK Tea",
+                        tint = TeaGold,
+                        modifier = Modifier.size((size * 0.6).dp)
+                    )
+                }
             )
         }
 

@@ -24,10 +24,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
@@ -65,6 +67,7 @@ import com.example.ui.model.COMPANY_CONTACT
 import com.example.ui.model.NavTab
 import com.example.ui.theme.TeaCreamBg
 import com.example.ui.theme.TeaGold
+import com.example.ui.theme.TeaGoldContainer
 import com.example.ui.theme.TeaGoldLight
 import com.example.ui.theme.TeaGreenContainer
 import com.example.ui.theme.TeaGreenDark
@@ -170,7 +173,12 @@ fun AboutContactScreen(
             }
         }
 
-        // 3. Frequently Asked Questions (FAQs)
+        // 3. Payment Method & Instructions (COD ONLY)
+        item {
+            PaymentInstructionsSection()
+        }
+
+        // 4. Frequently Asked Questions (FAQs)
         item {
             FaqSection()
         }
@@ -586,7 +594,7 @@ private fun FaqSection() {
         ),
         FaqData(
             question = "What payment methods are accepted?",
-            answer = "We accept Cash on Delivery (COD), JazzCash, EasyPaisa, and Direct Bank Transfers upon dispatch confirmation."
+            answer = "We accept Cash on Delivery (COD) ONLY. No advance online payment or bank deposit is required. You pay cash directly to the delivery rider or transport courier when your tea parcel arrives."
         )
     )
 
@@ -674,6 +682,187 @@ private fun FaqItemRow(faq: FaqData) {
                     )
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PaymentInstructionsSection() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5DFD4))
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Payments,
+                        contentDescription = null,
+                        tint = TeaGreenPrimary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "PAYMENT METHOD & TERMS",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = TeaGreenPrimary,
+                            letterSpacing = 1.sp
+                        )
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = TeaGreenContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = TeaGreenDark,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "COD ONLY",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = TeaGreenDark,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                color = TeaGoldContainer.copy(alpha = 0.35f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.6f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Payments,
+                        contentDescription = null,
+                        tint = TeaGreenDark,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "100% Cash on Delivery (COD)",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = TeaGreenDark
+                            )
+                        )
+                        Text(
+                            text = "We strictly accept payments via Cash on Delivery upon order arrival.",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = TeaTextSecondary
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "How Payment Works:",
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = TeaTextPrimary
+                )
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            PaymentStepRow(
+                stepNum = "1",
+                title = "No Advance Payment Required",
+                desc = "Place your wholesale tea order online without paying any advance deposit or online fee."
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color(0xFFEFE8DE))
+
+            PaymentStepRow(
+                stepNum = "2",
+                title = "Order Dispatch & Bill Generation",
+                desc = "Your tea order is packaged and dispatched from Akbari Mandi with an official printed invoice."
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color(0xFFEFE8DE))
+
+            PaymentStepRow(
+                stepNum = "3",
+                title = "Pay Cash Upon Delivery",
+                desc = "When the courier rider or cargo transport arrives at your shop/hotel, pay the exact cash amount on the bill."
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaymentStepRow(
+    stepNum: String,
+    title: String,
+    desc: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(
+            modifier = Modifier
+                .size(22.dp)
+                .clip(CircleShape)
+                .background(TeaGreenPrimary),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stepNum,
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = TeaTextPrimary,
+                    fontSize = 13.sp
+                )
+            )
+            Text(
+                text = desc,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = TeaTextSecondary,
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp
+                )
+            )
         }
     }
 }

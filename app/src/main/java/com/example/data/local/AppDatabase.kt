@@ -33,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "skt_tea_database"
                 )
+                .fallbackToDestructiveMigration()
                 .addCallback(DatabaseCallback(scope))
                 .build()
                 INSTANCE = instance
@@ -179,6 +180,57 @@ abstract class AppDatabase : RoomDatabase() {
                         status = "Delivered",
                         timestamp = now - (2 * oneDay),
                         updatedTimestamp = now - (1 * oneDay)
+                    ),
+                    OrderEntity(
+                        id = 5,
+                        orderNumber = "SK-001038",
+                        customerName = "Mian Farooq Ahmed",
+                        shopName = "Farooq Tea Warehouse",
+                        mobileNumber = "0300-8889900",
+                        address = "Akbari Mandi Wholesale Complex",
+                        city = "Lahore",
+                        teaBlend = "SK Royal Danedar Blend",
+                        teaSize = "1kg",
+                        unitCount = 50,
+                        totalKg = 50.0,
+                        notes = "Bulk wholesale order delivered",
+                        status = "Delivered",
+                        timestamp = now - (35 * oneDay), // Previous Month
+                        updatedTimestamp = now - (34 * oneDay)
+                    ),
+                    OrderEntity(
+                        id = 6,
+                        orderNumber = "SK-001037",
+                        customerName = "Chaudhry Bilal Hassan",
+                        shopName = "Royal Gourmet Hotel",
+                        mobileNumber = "0321-4443322",
+                        address = "Mall Road Junction",
+                        city = "Multan",
+                        teaBlend = "SK Elaichi Premium Tea",
+                        teaSize = "250g",
+                        unitCount = 80,
+                        totalKg = 20.0,
+                        notes = "Delivered via express cargo",
+                        status = "Delivered",
+                        timestamp = now - (40 * oneDay), // Previous Month
+                        updatedTimestamp = now - (39 * oneDay)
+                    ),
+                    OrderEntity(
+                        id = 7,
+                        orderNumber = "SK-001036",
+                        customerName = "Sardar Tanveer Khan",
+                        shopName = "Kashmir Hotel & Tea Bar",
+                        mobileNumber = "0312-9998877",
+                        address = "Saddam Market, College Road",
+                        city = "Sialkot",
+                        teaBlend = "SK Special Hotel Karak Blend",
+                        teaSize = "Custom",
+                        unitCount = 2,
+                        totalKg = 70.0,
+                        notes = "Bulk sacks order delivered",
+                        status = "Delivered",
+                        timestamp = now - (75 * oneDay), // Earlier This Year
+                        updatedTimestamp = now - (74 * oneDay)
                     )
                 )
 
