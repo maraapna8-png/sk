@@ -31,7 +31,7 @@ data class OrderFormState(
     val selectedBlend: String = SKT_TEA_CATALOG.first().name,
     // Per-package quantities
     val qty125g: Int = 0,
-    val qty250g: Int = 10, // Default 10 packets of 250g
+    val qty250g: Int = 0,
     val qty500g: Int = 0,
     val qty1kg: Int = 0,
     val qtyCustomUnits: Int = 0,

@@ -183,10 +183,10 @@ fun PlaceOrderScreen(
                 border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.5f))
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // High-resolution SK Tea hero image
+                    // High-resolution SK Tea hero image (Matching Home Screen Banner)
                     SubcomposeAsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(R.drawable.img_tea_order_hero)
+                            .data(R.drawable.img_home_banner)
                             .crossfade(true)
                             .build(),
                         contentDescription = "SK Tea Fresh Karak Brew",
@@ -194,23 +194,35 @@ fun PlaceOrderScreen(
                         contentScale = ContentScale.Crop,
                         alignment = Alignment.Center,
                         error = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        Brush.linearGradient(
-                                            colors = listOf(TeaGreenDark, TeaGreenPrimary)
+                            SubcomposeAsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(R.drawable.img_tea_order_hero)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "SK Tea Hero Fallback",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                                alignment = Alignment.Center,
+                                error = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                Brush.linearGradient(
+                                                    colors = listOf(TeaGreenDark, TeaGreenPrimary)
+                                                )
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Eco,
+                                            contentDescription = null,
+                                            tint = TeaGold,
+                                            modifier = Modifier.size(56.dp)
                                         )
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Eco,
-                                    contentDescription = null,
-                                    tint = TeaGold,
-                                    modifier = Modifier.size(56.dp)
-                                )
-                            }
+                                    }
+                                }
+                            )
                         }
                     )
 
@@ -502,43 +514,7 @@ private fun TeaSelectionCard(
                     onQtyChange = { onQtyChange("1kg", it) }
                 )
 
-                // Custom Volume
-                PackageQuantityCard(
-                    sizeId = "custom",
-                    tag = "CUSTOM BULK",
-                    label = "Custom Bag (${formState.customKgPerUnit} KG)",
-                    weightPerUnitKg = formState.customKgPerUnit,
-                    currentQty = formState.qtyCustomUnits,
-                    imageResId = R.drawable.img_tea_order_hero,
-                    onQtyChange = { onQtyChange("custom", it) }
-                )
 
-                if (formState.qtyCustomUnits > 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField(
-                        value = if (formState.customKgPerUnit == 0.0) "" else formState.customKgPerUnit.toString(),
-                        onValueChange = { input ->
-                            val parsed = input.toDoubleOrNull() ?: 0.0
-                            onCustomKgChange(parsed)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(color = Color.Black),
-                        label = { Text("Custom Weight per Bag (KG)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                            cursorColor = Color.Black,
-                            focusedBorderColor = TeaGreenPrimary,
-                            unfocusedBorderColor = TeaBorder,
-                            focusedLabelColor = TeaGreenPrimary,
-                            unfocusedLabelColor = Color(0xFF444444),
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
