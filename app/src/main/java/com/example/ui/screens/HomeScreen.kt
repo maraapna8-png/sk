@@ -253,45 +253,57 @@ private fun HeroBannerSection(
                     val context = androidx.compose.ui.platform.LocalContext.current
                     SubcomposeAsyncImage(
                         model = ImageRequest.Builder(context)
-                            .data(R.drawable.img_hero_tea)
+                            .data(R.drawable.img_home_banner)
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Fresh Tea Plantation & Brew",
+                        contentDescription = "SK Tea Fresh Brew Banner",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
                         alignment = Alignment.Center,
                         error = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        Brush.linearGradient(
-                                            colors = listOf(TeaGreenDark, TeaGreenPrimary, Color(0xFF1E3A2B))
-                                        )
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Eco,
-                                        contentDescription = null,
-                                        tint = TeaGold,
-                                        modifier = Modifier.size(48.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "SK TEA COMPANY",
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            color = TeaGold,
-                                            fontWeight = FontWeight.Bold,
-                                            letterSpacing = 2.sp
-                                        )
-                                    )
+                            SubcomposeAsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(R.drawable.img_home_banner_fallback)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "SK Tea Fallback Banner",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                                alignment = Alignment.Center,
+                                error = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                Brush.linearGradient(
+                                                    colors = listOf(TeaGreenDark, TeaGreenPrimary, Color(0xFF1E3A2B))
+                                                )
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Eco,
+                                                contentDescription = null,
+                                                tint = TeaGold,
+                                                modifier = Modifier.size(48.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = "SK TEA COMPANY",
+                                                style = MaterialTheme.typography.titleMedium.copy(
+                                                    color = TeaGold,
+                                                    fontWeight = FontWeight.Bold,
+                                                    letterSpacing = 2.sp
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
-                            }
+                            )
                         }
                     )
 

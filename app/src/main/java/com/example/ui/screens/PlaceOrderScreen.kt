@@ -66,6 +66,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import com.example.R
 import com.example.data.local.entity.OrderEntity
 import com.example.ui.components.OrderReviewDialog
 import com.example.ui.components.SktBrandLogo
@@ -167,40 +172,113 @@ fun PlaceOrderScreen(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Form Title - Geometric Balance Theme Headline
+        // Form Title - Hero Tea Image Banner
         item {
-            Column {
-                Text(
-                    text = "PREMIUM SELECTION",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = TeaGold,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(190.dp),
+                shape = RoundedCornerShape(22.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TeaGold.copy(alpha = 0.5f))
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // High-resolution SK Tea hero image
+                    SubcomposeAsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(R.drawable.img_tea_order_hero)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "SK Tea Fresh Karak Brew",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center,
+                        error = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.linearGradient(
+                                            colors = listOf(TeaGreenDark, TeaGreenPrimary)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Eco,
+                                    contentDescription = null,
+                                    tint = TeaGold,
+                                    modifier = Modifier.size(56.dp)
+                                )
+                            }
+                        }
                     )
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Pure quality ",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            color = TeaGreenPrimary
-                        )
+
+                    // Scrim gradient overlay for rich contrast and text legibility
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.25f),
+                                        Color.Black.copy(alpha = 0.80f)
+                                    )
+                                )
+                            )
                     )
-                    Text(
-                        text = "in every leaf.",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
+
+                    // Content over tea picture
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
                             color = TeaGold,
-                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                        )
-                    )
+                            contentColor = TeaGreenDark
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Eco,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = TeaGreenDark
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "PREMIUM SK TEA SELECTION",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 1.2.sp
+                                    )
+                                )
+                            }
+                        }
+
+                        Column {
+                            Text(
+                                text = "Pure Quality in Every Leaf",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Select your package quantities below for direct shop delivery.",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            )
+                        }
+                    }
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Select your preferred tea blend and quantity for direct delivery to your shop.",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = TeaTextSecondary)
-                )
             }
         }
 
@@ -387,6 +465,7 @@ private fun TeaSelectionCard(
                     label = "125g Pouch",
                     weightPerUnitKg = 0.125,
                     currentQty = formState.qty125g,
+                    imageResId = R.drawable.img_tea_pouch_125g,
                     onQtyChange = { onQtyChange("125g", it) }
                 )
 
@@ -397,6 +476,7 @@ private fun TeaSelectionCard(
                     label = "250g Pouch",
                     weightPerUnitKg = 0.250,
                     currentQty = formState.qty250g,
+                    imageResId = R.drawable.img_tea_pouch_250g,
                     onQtyChange = { onQtyChange("250g", it) }
                 )
 
@@ -407,6 +487,7 @@ private fun TeaSelectionCard(
                     label = "500g Pouch",
                     weightPerUnitKg = 0.500,
                     currentQty = formState.qty500g,
+                    imageResId = R.drawable.img_tea_pouch_500g,
                     onQtyChange = { onQtyChange("500g", it) }
                 )
 
@@ -417,6 +498,7 @@ private fun TeaSelectionCard(
                     label = "1 KG Master Pack",
                     weightPerUnitKg = 1.000,
                     currentQty = formState.qty1kg,
+                    imageResId = R.drawable.img_tea_pouch_1kg,
                     onQtyChange = { onQtyChange("1kg", it) }
                 )
 
@@ -427,6 +509,7 @@ private fun TeaSelectionCard(
                     label = "Custom Bag (${formState.customKgPerUnit} KG)",
                     weightPerUnitKg = formState.customKgPerUnit,
                     currentQty = formState.qtyCustomUnits,
+                    imageResId = R.drawable.img_tea_order_hero,
                     onQtyChange = { onQtyChange("custom", it) }
                 )
 
@@ -520,10 +603,12 @@ private fun PackageQuantityCard(
     label: String,
     weightPerUnitKg: Double,
     currentQty: Int,
+    imageResId: Int? = null,
     onQtyChange: (Int) -> Unit
 ) {
     val isSelected = currentQty > 0
     val subtotalKg = currentQty * weightPerUnitKg
+    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -535,36 +620,79 @@ private fun PackageQuantityCard(
         ),
         shadowElevation = if (isSelected) 2.dp else 1.dp
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tag & Title
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = tag,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = if (isSelected) TeaGreenDark else TeaGold,
-                            letterSpacing = 1.sp,
-                            fontSize = 10.sp
+                // Product Image Thumbnail & Tag / Title
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    if (imageResId != null) {
+                        Card(
+                            modifier = Modifier.size(52.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                if (isSelected) TeaGold else Color(0xFFE5E0D5)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            SubcomposeAsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(imageResId)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "$label Package",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                                error = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(TeaGreenDark),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Eco,
+                                            contentDescription = null,
+                                            tint = TeaGold,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    Column {
+                        Text(
+                            text = tag,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) TeaGreenDark else TeaGold,
+                                letterSpacing = 1.sp,
+                                fontSize = 10.sp
+                            )
                         )
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
-                            fontSize = 16.sp
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) TeaGreenPrimary else TeaTextPrimary,
+                                fontSize = 15.sp
+                            )
                         )
-                    )
-                    Text(
-                        text = "$weightPerUnitKg kg / packet",
-                        style = MaterialTheme.typography.labelSmall.copy(color = TeaTextSecondary)
-                    )
+                        Text(
+                            text = "$weightPerUnitKg kg / packet",
+                            style = MaterialTheme.typography.labelSmall.copy(color = TeaTextSecondary)
+                        )
+                    }
                 }
 
                 // Stepper Controls
